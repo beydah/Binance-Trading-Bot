@@ -1,3 +1,3 @@
-import business as B
+from src.business import backtest as TEST
 
-B.TEST_DCA_ALGORITHM(4,4,15)
+TEST.DCA_ALGORITHM(4, 4, 15)
