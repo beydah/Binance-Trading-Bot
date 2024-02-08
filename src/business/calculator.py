@@ -12,17 +12,18 @@ def STOCHRSI(COIN_SYMBOL, CANDLE_PERIOD):
     closePrice = B.READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, 4)
     stochRSI = B.TA.stochrsi(closePrice, S.STOCHRSI_STOCH_LENGTH,
                              S.STOCHRSI_RSI_LENGTH, S.STOCHRSI_SMOOTH_K, S.STOCHRSI_SMOOTH_D)
+    stochRSI.columns = ["stochRSI_K", "stochRSI_D"]
     return stochRSI
 
 
-def SMA(SYMBOL, PERIOD, MA_LENGTH):
-    closePrice = B.READ_CANDLE(SYMBOL, PERIOD, 4)
+def SMA(COIN_SYMBOL, CANDLE_PERIOD, MA_LENGTH):
+    closePrice = B.READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, 4)
     sma = B.TA.ma("sma", closePrice, length=MA_LENGTH)
     return sma
 
 
-def EMA(SYMBOL, PERIOD, MA_LENGTH):
-    closePrice = B.READ_CANDLE(SYMBOL, PERIOD, 4)
+def EMA(COIN_SYMBOL, CANDLE_PERIOD, MA_LENGTH):
+    closePrice = B.READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, 4)
     ema = B.TA.ema("ema", closePrice, length=MA_LENGTH)
     return ema
 

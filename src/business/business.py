@@ -34,8 +34,8 @@ def READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, HEAD_ID):
     readCSV = OS.path.join("../data", f"{COIN_SYMBOL}_{CANDLE_PERIOD}.csv")
     with open(readCSV, "r", newline='') as csvFile:
         headers = \
-            ['Open_Time', 'Open_Price', 'High_Price', 'Low_Price', 'Close_Price',
-             'Volume', 'Close_Time', 'QAV', 'NAT', 'TBBAV', 'TBQAV', 'Ignore']
+            ["Open_Time", "Open_Price", "High_Price", "Low_Price", "Close_Price",
+             "Volume", "Close_Time", "QAV", "NAT", "TBBAV", "TBQAV", "Ignore"]
         df = PD.read_csv(readCSV, names=headers)
     csvFile.close()
     if HEAD_ID == -1:

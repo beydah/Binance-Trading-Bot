@@ -1,3 +1,7 @@
 from src.business import backtest as TEST
 
-TEST.GOLDEN_CROSS_ALGORITHM("USDT", "TRY", "4h", 1000)
+'''
+"BTC", "ETH", "BNB", "USDT", "PAXG", "TRY"
+"1d", "4h", "1h", "15m", "5m"]
+'''
+TEST.BASIC_STOCHRSI_ALGORITHM("BTC", "USDT", "1d", 1000)
