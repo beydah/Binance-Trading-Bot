@@ -1,1 +1,1 @@
-# Binance-Trader-Bot_Beta
+# Binance-Trading-Bot
