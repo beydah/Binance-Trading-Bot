@@ -1,64 +1,39 @@
 from src.business import business as B
 from src.settings import settings as S
-import pandas_ta as TA
 
 
-def RSI(SYMBOL_ID, PERIOD_ID):
-    try:
-        closePrice = B.RETURN_CANDLE_SYMBOLS(SYMBOL_ID, PERIOD_ID, 4)
-        rsi = TA.rsi(closePrice, S.RSI_LENGTH)
-        return rsi
-    except Exception:
-        print("ERROR - CALCULATE_RSI: Couldn't Calculate RSI")
-        return -1
+def RSI(COIN_SYMBOL, CANDLE_PERIOD):
+    closePrice = B.READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, 4)
+    rsi = B.TA.rsi(closePrice, S.RSI_LENGTH)
+    return rsi
 
 
-def MA(SYMBOL_ID, PERIOD_ID):
-    try:
-        closePrice = B.RETURN_CANDLE_SYMBOLS(SYMBOL_ID, PERIOD_ID, 4)
-        ma = TA.ma("sma", closePrice, length=S.MA_LENGTH)
-        return ma
-    except Exception:
-        print("ERROR - CALCULATE_MA: Couldn't Calculate MA")
-        return -1
+def STOCHRSI(COIN_SYMBOL, CANDLE_PERIOD):
+    closePrice = B.READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, 4)
+    stochRSI = B.TA.stochrsi(closePrice, S.STOCHRSI_STOCH_LENGTH,
+                             S.STOCHRSI_RSI_LENGTH, S.STOCHRSI_SMOOTH_K, S.STOCHRSI_SMOOTH_D)
+    return stochRSI
 
 
-def EMA(SYMBOL_ID, PERIOD_ID):
-    try:
-        closePrice = B.RETURN_CANDLE_SYMBOLS(SYMBOL_ID, PERIOD_ID, 4)
-        ema = TA.ema("ema", closePrice, length=S.MA_LENGTH)
-        return ema
-    except Exception:
-        print("ERROR - CALCULATE_EMA: Couldn't Calculate EMA")
-        return -1
+def SMA(SYMBOL, PERIOD, MA_LENGTH):
+    closePrice = B.READ_CANDLE(SYMBOL, PERIOD, 4)
+    sma = B.TA.ma("sma", closePrice, length=MA_LENGTH)
+    return sma
 
 
-def STOCHRSI(SYMBOL_ID, PERIOD_ID):
-    try:
-        closePrice = B.RETURN_CANDLE_SYMBOLS(SYMBOL_ID, PERIOD_ID, 4)
-        stochRSI = TA.stochrsi(closePrice, S.STOCHRSI_STOCH_LENGTH,
-                               S.STOCHRSI_RSI_LENGTH, S.STOCHRSI_SMOOTH_K, S.STOCHRSI_SMOOTH_D)
-        return stochRSI
-    except Exception:
-        print("ERROR - CALCULATE_STOCHRSI: Couldn't Calculate STOCHRSI")
-        return -1
+def EMA(SYMBOL, PERIOD, MA_LENGTH):
+    closePrice = B.READ_CANDLE(SYMBOL, PERIOD, 4)
+    ema = B.TA.ema("ema", closePrice, length=MA_LENGTH)
+    return ema
 
 
-def MACD(SYMBOL_ID, PERIOD_ID):
-    try:
-        closePrice = B.RETURN_CANDLE_SYMBOLS(SYMBOL_ID, PERIOD_ID, 4)
-        macd = TA.macd(closePrice, S.MACD_FAST, S.MACD_SLOW, S.MACD_SIGNAL)
-        return macd
-    except Exception:
-        print("ERROR - CALCULATE_MACD: Couldn't Calculate MACD")
-        return -1
+def MACD(COIN_SYMBOL, CANDLE_PERIOD):
+    closePrice = B.READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, 4)
+    macd = B.TA.macd(closePrice, S.MACD_FAST, S.MACD_SLOW, S.MACD_SIGNAL)
+    return macd
 
 
-def BOLL(SYMBOL_ID, PERIOD_ID):
-    try:
-        closePrice = B.RETURN_CANDLE_SYMBOLS(SYMBOL_ID, PERIOD_ID, 4)
-        boll = TA.bbands(closePrice, S.BOLL_LENGTH)
-        return boll
-    except Exception:
-        print("ERROR - CALCULATE_BOLL: Couldn't Calculate BOLL")
-        return -1
+def BOLL(COIN_SYMBOL, CANDLE_PERIOD):
+    closePrice = B.READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, 4)
+    boll = B.TA.bbands(closePrice, S.BOLL_LENGTH)
+    return boll
