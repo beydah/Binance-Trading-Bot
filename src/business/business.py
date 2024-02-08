@@ -23,8 +23,8 @@ def WRITE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD):
     with open(folderPath, "w", newline='') as csvFile:
         writer = CSV.writer(csvFile, delimiter=',')
         for candleData in GET_CANDLE(COIN_SYMBOL, CANDLE_PERIOD):
-            candleData[0] = SET_TIME(candleData[0])
-            candleData[6] = SET_TIME(candleData[6])
+            candleData[0] = TIMESET(candleData[0])
+            candleData[6] = TIMESET(candleData[6])
             writer.writerow(candleData)
     csvFile.close()
 
@@ -57,15 +57,10 @@ def GET_PERIOD_FROM_ID(PERIOD_ID):
     return candlePeriod
 
 
-def GET_MA_LENGTH_FROM_ID(MA_LENGTH_ID):
-    maLength = S.MA_LENGTHS[MA_LENGTH_ID]
-    return maLength
-
-
 def COMBINE_SYMBOL(LEFT_SYMBOL, RIGHT_SYMBOL):
     combinerSymbol = LEFT_SYMBOL + RIGHT_SYMBOL
     return combinerSymbol
 
 
-def SET_TIME(TIMESTAMP):
+def TIMESET(TIMESTAMP):
     return DT.fromtimestamp(TIMESTAMP / 1000)

@@ -37,3 +37,17 @@ def BOLL(COIN_SYMBOL, CANDLE_PERIOD):
     closePrice = B.READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, 4)
     boll = B.TA.bbands(closePrice, S.BOLL_LENGTH)
     return boll
+
+
+def TEST_BUY(WEALTH_QUANTITY, WEALTH_PRICE):
+    coinQuantity = WEALTH_QUANTITY / WEALTH_PRICE
+    commission = coinQuantity * S.BINANCE_COMISSION_RATE
+    coinQuantity -= commission
+    return coinQuantity
+
+
+def TEST_SELL(WEALTH_QUANTITY, WEALTH_PRICE):
+    coinQuantity = WEALTH_QUANTITY * WEALTH_PRICE
+    commission = coinQuantity * S.BINANCE_COMISSION_RATE
+    coinQuantity -= commission
+    return coinQuantity

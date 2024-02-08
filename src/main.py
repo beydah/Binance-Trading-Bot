@@ -1,3 +1,3 @@
 from src.business import backtest as TEST
 
-TEST.DCA_ALGORITHM("USDT", "TRY", "1d", 1000)
+TEST.GOLDEN_CROSS_ALGORITHM("USDT", "TRY", "4h", 1000)
