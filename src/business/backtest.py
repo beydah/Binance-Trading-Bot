@@ -71,6 +71,7 @@ def GOLDEN_CROSS_ALGORITHM(LEFT_SMYBOL, RIGHT_SYMBOL, CANDLE_PERIOD, WALLET):
     print(f"Wallet: {WALLET} - {RIGHT_SYMBOL}")
     print("####################################################")
 
+
 def BASIC_STOCHRSI_ALGORITHM(LEFT_SMYBOL, RIGHT_SYMBOL, CANDLE_PERIOD, WALLET):
     coinSymbol = B.COMBINE_SYMBOL(LEFT_SMYBOL, RIGHT_SYMBOL)
 

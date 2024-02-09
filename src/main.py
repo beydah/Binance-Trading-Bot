@@ -1,7 +1,4 @@
 from src.business import backtest as TEST
+from src.business import business as B
 
-'''
-"BTC", "ETH", "BNB", "USDT", "PAXG", "TRY"
-"1d", "4h", "1h", "15m", "5m"]
-'''
-TEST.BASIC_STOCHRSI_ALGORITHM("BTC", "USDT", "1d", 1000)
+B.BOT_MESSAGE_SEND("TEST MESSAGE")

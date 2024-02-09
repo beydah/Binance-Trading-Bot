@@ -1,4 +1,5 @@
 from src.settings import settings as S
+from src.settings import api as API
 
 import csv as CSV
 import os as OS
@@ -6,10 +7,15 @@ import os as OS
 import pandas as PD
 import pandas_ta as TA
 
+import requests as REQUEST
+import telebot as BOT
+from telebot import types as TYPES
+
 from binance import Client as BINANCE
 from datetime import datetime as DT
 
-CLIENT = BINANCE(S.API_KEY, S.API_SECRET)
+CLIENT = BINANCE(API.BINANCE_KEY, API.BINANCE_SECRET)
+TELEGRAM_BOT = BOT.TeleBot(API.TELEGRAM_BOT_KEY)
 
 
 def GET_CANDLE(COIN_SYMBOL, CANDLE_PERIOD):
@@ -64,3 +70,11 @@ def COMBINE_SYMBOL(LEFT_SYMBOL, RIGHT_SYMBOL):
 
 def TIMESET(TIMESTAMP):
     return DT.fromtimestamp(TIMESTAMP / 1000)
+
+
+def BOT_MESSAGE_SEND(BOT_MESSAGE):
+    URL = \
+        (f"https://api.telegram.org/bot{API.TELEGRAM_BOT_TOKEN}"
+         f"/sendMessage?chat_id={API.TELEGRAM_USER_ID}"
+         f"&parse_mode=Markdown&text={BOT_MESSAGE}")
+    REQUEST.get(URL)
