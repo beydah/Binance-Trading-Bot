@@ -1,6 +1,8 @@
 # Added Pages
 from src.settings import settings as S
 from src.business import business as B
+
+
 # ----------------------------------------------------------------
 
 
@@ -39,6 +41,8 @@ def TEST_PRINT_RESULT(LEFT_SMYBOL, RIGHT_SYMBOL, CANDLE_PERIOD, ALGORITHM_NAME, 
     print("####################################################")
     print(message)
     print("####################################################")
+
+
 # ----------------------------------------------------------------
 
 
@@ -51,17 +55,14 @@ def CHANGE_PERCENT(COIN_SYMBOL, DAYS):
     today = today.strftime("%Y-%m-%d %H:%M:%S")
     past_date = past_date.strftime("%Y-%m-%d %H:%M:%S")
 
-    temp = B.READ_CANDLE(COIN_SYMBOL, "1m", today, 4)
-    currentPrice = temp[len(temp) - 1]
-
     try:
-        temp = B.READ_CANDLE(COIN_SYMBOL, "1m", past_date, 4)
+        temp = B.READ_CANDLE(COIN_SYMBOL, "1m", today, 1, 4)
+        currentPrice = temp[len(temp) - 1]
+        temp = B.READ_CANDLE(COIN_SYMBOL, "1m", past_date, 1, 4)
         pastPrice = temp[len(temp) - 1]
         priceDifference = currentPrice - pastPrice
         percentChange = round((priceDifference / pastPrice) * 100, 4)
-
-    except Exception:
-        percentChange = 0
+    except Exception: percentChange = 0
 
     B.DELETE_CANDLE(COIN_SYMBOL, "1m")
     return percentChange

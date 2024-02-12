@@ -10,26 +10,23 @@ TELEGRAM_BOT = S.BOT.TeleBot(API.TELEGRAM_BOT_KEY)
 
 
 # Candle Transactions
-def GET_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None):
+def WRITE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None, CANDLE_LIMIT=None):
+    if CANDLE_LIMIT is None: CANDLE_LIMIT = S.CANDLE_LIMIT
     candleList = CLIENT.get_historical_klines(symbol=COIN_SYMBOL, interval=CANDLE_PERIOD,
-                                              end_str=DATETIME, limit=S.CANDLE_LIMIT)
-    return candleList
-
-
-def WRITE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None):
+                                              end_str=DATETIME, limit=CANDLE_LIMIT)
     if not S.OS.path.exists("../.data"): S.OS.makedirs("../.data")
     filePath = S.OS.path.join("../.data", f"{COIN_SYMBOL}_{CANDLE_PERIOD}.csv")
     with open(filePath, "w", newline='') as csvFile:
         writer = S.CSV.writer(csvFile, delimiter=',')
-        for candleData in GET_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME):
+        for candleData in candleList:
             candleData[0] = S.TIME.fromtimestamp(candleData[0] / 1000)
             candleData[6] = S.TIME.fromtimestamp(candleData[6] / 1000)
             writer.writerow(candleData)
     csvFile.close()
 
 
-def READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None, HEAD_ID=None):
-    WRITE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME)
+def READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None, CANDLE_LIMIT=None, HEAD_ID=None):
+    WRITE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME, CANDLE_LIMIT)
     filePath = S.OS.path.join("../.data", f"{COIN_SYMBOL}_{CANDLE_PERIOD}.csv")
     with open(filePath, "r", newline='') as csvFile:
         headers = \
@@ -37,21 +34,13 @@ def READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None, HEAD_ID=None):
              "Volume", "Close_Time", "QAV", "NAT", "TBBAV", "TBQAV", "Ignore"]
         df = S.PD.read_csv(filePath, names=headers)
     csvFile.close()
-    if HEAD_ID is None:
-        return df
-    elif -1 < HEAD_ID < 12:
-        header = headers[HEAD_ID]
-        return df[header]
-    else:
-        return "Unknown HEAD_ID"
+    if HEAD_ID is None: return df
+    elif -1 < HEAD_ID < 12: return df[headers[HEAD_ID]]
 
 
 def DELETE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD):
     filePath = S.OS.path.join("../.data", f"{COIN_SYMBOL}_{CANDLE_PERIOD}.csv")
-    try:
-        S.OS.remove(filePath)
-    except Exception:
-        pass
+    if S.OS.path.exists(filePath): S.OS.remove(filePath)
 # ----------------------------------------------------------------
 
 
@@ -62,29 +51,25 @@ def READ_COINLIST(ROW=None):
         headers = ["COIN_NAME"]
         df = S.PD.read_csv(filePath, names=headers)
     csvFile.close()
-    if ROW is None:
-        header = headers[0]
-        return df[header]
+    return df[headers[0]]
 
 
-def WRITE_CHANGE():
+def WRITE_CHANGELIST():
     today = S.TIME.now()
     today = today.strftime("%Y-%m-%d")
-
     if not S.OS.path.exists("../.data"): S.OS.makedirs("../.data")
     filePath = S.OS.path.join("../.data", f"CHANGELIST_{today}.csv")
     with open(filePath, 'w', newline='') as csvFile:
         writer = S.CSV.writer(csvFile, delimiter=',')
         coinList = READ_COINLIST()
+        SEND_MESSAGE(f"Updating CHANGELIST File...")
         for i in range(len(coinList)):
             coinSymbol = coinList[i] + "USDT"
             day = [0, 0, 0, 0, 0, 0]
-            for j in range(6):
-                day[j] = CALCULATE.CHANGE_PERCENT(coinSymbol, S.CHANGELIST_DAYS[j])
+            for j in range(6): day[j] = CALCULATE.CHANGE_PERCENT(coinSymbol, S.CHANGELIST_DAYS[j])
             avgChange = round((day[0] + day[1] + day[2] + day[3] + day[4] + day[5]) / 6, 4)
             writer.writerow([coinSymbol, day[0], day[1], day[2], day[3], day[4], day[5], avgChange])
-            SEND_MESSAGE(f"Updating CHANGELIST file... {(i + 1) / (len(coinList)) * 100:.0f}")
-        SEND_MESSAGE("CHANGELIST File Updated")
+        SEND_MESSAGE("CHANGELIST File Updated.")
     csvFile.close()
 # ----------------------------------------------------------------
 
@@ -100,16 +85,13 @@ def SEND_MESSAGE(BOT_MESSAGE):
 
 # Other Transactions
 def COMBINE_SYMBOL(LEFT_SYMBOL, RIGHT_SYMBOL):
-    combinerSymbol = LEFT_SYMBOL + RIGHT_SYMBOL
-    return combinerSymbol
+    return LEFT_SYMBOL + RIGHT_SYMBOL
 
 
 def GET_SYMBOL_FROM_ID(SYMBOL_ID):
-    coinSymbol = S.COIN_SYMBOLS[SYMBOL_ID]
-    return coinSymbol
+    return S.COIN_SYMBOLS[SYMBOL_ID]
 
 
 def GET_PERIOD_FROM_ID(PERIOD_ID):
-    candlePeriod = S.CANDLE_PEROIDS[PERIOD_ID]
-    return candlePeriod
+    return S.CANDLE_PEROIDS[PERIOD_ID]
 # ----------------------------------------------------------------
