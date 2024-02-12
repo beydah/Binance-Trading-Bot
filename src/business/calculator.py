@@ -21,7 +21,6 @@ def TEST_SELL(WEALTH_QUANTITY, WEALTH_PRICE):
 
 def TEST_PRINT_RESULT(LEFT_SMYBOL, RIGHT_SYMBOL, CANDLE_PERIOD, ALGORITHM_NAME, WALLET,
                       TOTAL_COIN, BUY_NUM, SELL_NUM, CLOSE_PRICE, TOTAL_INVESMENT=None):
-
     message = (f"Algorithm: {ALGORITHM_NAME}\n"
                f"Symbol: {LEFT_SMYBOL + RIGHT_SYMBOL} - Period: {CANDLE_PERIOD}\n"
                f"Total Transactions: {BUY_NUM + SELL_NUM}\n")
@@ -40,4 +39,30 @@ def TEST_PRINT_RESULT(LEFT_SMYBOL, RIGHT_SYMBOL, CANDLE_PERIOD, ALGORITHM_NAME, 
     print("####################################################")
     print(message)
     print("####################################################")
+# ----------------------------------------------------------------
+
+
+# Other Calculations
+def CHANGE_PERCENT(COIN_SYMBOL, DAYS):
+    past = S.TD(days=DAYS)
+
+    today = S.TIME.now()
+    past_date = today - past
+    today = today.strftime("%Y-%m-%d %H:%M:%S")
+    past_date = past_date.strftime("%Y-%m-%d %H:%M:%S")
+
+    temp = B.READ_CANDLE(COIN_SYMBOL, "1m", today, 4)
+    currentPrice = temp[len(temp) - 1]
+
+    try:
+        temp = B.READ_CANDLE(COIN_SYMBOL, "1m", past_date, 4)
+        pastPrice = temp[len(temp) - 1]
+        priceDifference = currentPrice - pastPrice
+        percentChange = round((priceDifference / pastPrice) * 100, 4)
+
+    except Exception:
+        percentChange = 0
+
+    B.DELETE_CANDLE(COIN_SYMBOL, "1m")
+    return percentChange
 # ----------------------------------------------------------------

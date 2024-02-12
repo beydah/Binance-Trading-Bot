@@ -3,8 +3,6 @@ from src.settings import settings as S
 from src.business import business as B
 from src.business import calculator as CALCULATE
 from src.business import indicator as INDICATOR
-
-
 # ----------------------------------------------------------------
 
 
