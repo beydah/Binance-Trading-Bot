@@ -11,7 +11,7 @@ def BASIC_DCA_ALGORITHM(LEFT_SMYBOL, RIGHT_SYMBOL, CANDLE_PERIOD, PER_TRANSACTIO
     algorithmName = "DCA"
 
     totalCoin = buyNum = sellNum = totalInvesment = 0
-    coinSymbol = B.COMBINE_SYMBOL(LEFT_SMYBOL, RIGHT_SYMBOL)
+    coinSymbol = LEFT_SMYBOL + RIGHT_SYMBOL
     openTime = B.READ_CANDLE(coinSymbol, CANDLE_PERIOD, None, 0)
     openPrice = B.READ_CANDLE(coinSymbol, CANDLE_PERIOD, None, 1)
     closePrice = B.READ_CANDLE(coinSymbol, CANDLE_PERIOD, None, 4)
@@ -36,7 +36,7 @@ def BASIC_GOLDENCROSS_ALGORITHM(LEFT_SMYBOL, RIGHT_SYMBOL, CANDLE_PERIOD, WALLET
     algorithmName = "Golden Cross"
 
     totalCoin = buyNum = sellNum = totalInvesment = 0
-    coinSymbol = B.COMBINE_SYMBOL(LEFT_SMYBOL, RIGHT_SYMBOL)
+    coinSymbol = LEFT_SMYBOL + RIGHT_SYMBOL
     openTime = B.READ_CANDLE(coinSymbol, CANDLE_PERIOD, None, 0)
     openPrice = B.READ_CANDLE(coinSymbol, CANDLE_PERIOD, None, 1)
     closePrice = B.READ_CANDLE(coinSymbol, CANDLE_PERIOD, None, 4)
@@ -68,7 +68,7 @@ def BASIC_STOCHRSI_ALGORITHM(LEFT_SMYBOL, RIGHT_SYMBOL, CANDLE_PERIOD, WALLET):
     algorithmName = "Basic StochRSI"
 
     totalCoin = buyNum = sellNum = totalInvesment = 0
-    coinSymbol = B.COMBINE_SYMBOL(LEFT_SMYBOL, RIGHT_SYMBOL)
+    coinSymbol = LEFT_SMYBOL + RIGHT_SYMBOL
     openTime = B.READ_CANDLE(coinSymbol, CANDLE_PERIOD, None, 0)
     openPrice = B.READ_CANDLE(coinSymbol, CANDLE_PERIOD, None, 1)
     closePrice = B.READ_CANDLE(coinSymbol, CANDLE_PERIOD, None, 4)

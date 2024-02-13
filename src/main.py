@@ -5,5 +5,6 @@ from src.business import business as B
 # ----------------------------------------------------------------
 
 # Test Area
-B.WRITE_CHANGELIST()
+coin = B.GET_SYMBOL_FROM_ID(0)
+print(coin)
 # ----------------------------------------------------------------

@@ -23,15 +23,14 @@ def WRITE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None, CANDLE_LIMIT=None):
             candleData[6] = S.TIME.fromtimestamp(candleData[6] / 1000)
             writer.writerow(candleData)
     csvFile.close()
+    return filePath
 
 
 def READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None, CANDLE_LIMIT=None, HEAD_ID=None):
-    WRITE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME, CANDLE_LIMIT)
-    filePath = S.OS.path.join("../.data", f"{COIN_SYMBOL}_{CANDLE_PERIOD}.csv")
+    filePath = WRITE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME, CANDLE_LIMIT)
     with open(filePath, "r", newline='') as csvFile:
-        headers = \
-            ["Open_Time", "Open_Price", "High_Price", "Low_Price", "Close_Price",
-             "Volume", "Close_Time", "QAV", "NAT", "TBBAV", "TBQAV", "Ignore"]
+        headers = ["Open_Time", "Open_Price", "High_Price", "Low_Price", "Close_Price",
+                   "Volume", "Close_Time", "QAV", "NAT", "TBBAV", "TBQAV", "Ignore"]
         df = S.PD.read_csv(filePath, names=headers)
     csvFile.close()
     if HEAD_ID is None: return df
@@ -45,31 +44,52 @@ def DELETE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD):
 
 
 # Change Transactions
-def READ_COINLIST(ROW=None):
+def READ_COINLIST():
     filePath = S.OS.path.join("settings", "coinlist.csv")
     with open(filePath, "r", newline='') as csvFile:
-        headers = ["COIN_NAME"]
+        headers = ["Coin_Name"]
         df = S.PD.read_csv(filePath, names=headers)
+        df = df.apply(lambda x: x.str.strip())
+        df = df.dropna()
     csvFile.close()
     return df[headers[0]]
 
 
 def WRITE_CHANGELIST():
-    today = S.TIME.now()
-    today = today.strftime("%Y-%m-%d")
     if not S.OS.path.exists("../.data"): S.OS.makedirs("../.data")
-    filePath = S.OS.path.join("../.data", f"CHANGELIST_{today}.csv")
+    filePath = S.OS.path.join("../.data", f"CHANGELIST.csv")
     with open(filePath, 'w', newline='') as csvFile:
-        writer = S.CSV.writer(csvFile, delimiter=',')
         coinList = READ_COINLIST()
-        SEND_MESSAGE(f"Updating CHANGELIST File...")
+        writer = S.CSV.writer(csvFile, delimiter=',')
+        SEND_MESSAGE(f"CHANGELIST File Updating...")
         for i in range(len(coinList)):
             coinSymbol = coinList[i] + "USDT"
             day = [0, 0, 0, 0, 0, 0]
             for j in range(6): day[j] = CALCULATE.CHANGE_PERCENT(coinSymbol, S.CHANGELIST_DAYS[j])
-            avgChange = round((day[0] + day[1] + day[2] + day[3] + day[4] + day[5]) / 6, 4)
-            writer.writerow([coinSymbol, day[0], day[1], day[2], day[3], day[4], day[5], avgChange])
+            avg = round((day[0] + day[1] + day[2] + day[3] + day[4] + day[5]) / 6, 4)
+            writer.writerow([coinSymbol, day[0], day[1], day[2], day[3], day[4], day[5], avg])
         SEND_MESSAGE("CHANGELIST File Updated.")
+    csvFile.close()
+    return filePath
+
+
+def READ_CHANGELIST():
+    filePath = WRITE_CHANGELIST()
+    with open(filePath, "r", newline="") as csvFile:
+        headers = ["Coin_Symbol", "1D_Percent", "7D_Percent", "30D_Percent", "90D_Percent",
+                   "180D_Percent", "365D_Percent", "AVG_Percent"]
+        df = S.PD.read_csv(filePath, names=headers)
+    csvFile.close()
+    return df
+
+
+def WRITE_FAVORITECOINS():
+    if not S.OS.path.exists("../.data"): S.OS.makedirs("../.data")
+    filePath = S.OS.path.join("../.data", f"FAVORITECOINS.csv")
+    with open(filePath, 'w', newline='') as csvFile:
+        minimumCoinList = CALCULATE.FIND_MINIMUMLIST()
+        writer = S.CSV.writer(csvFile, delimiter=',')
+        for coin in minimumCoinList: writer.writerow([coin])
     csvFile.close()
 # ----------------------------------------------------------------
 
@@ -84,14 +104,16 @@ def SEND_MESSAGE(BOT_MESSAGE):
 
 
 # Other Transactions
-def COMBINE_SYMBOL(LEFT_SYMBOL, RIGHT_SYMBOL):
-    return LEFT_SYMBOL + RIGHT_SYMBOL
-
-
 def GET_SYMBOL_FROM_ID(SYMBOL_ID):
-    return S.COIN_SYMBOLS[SYMBOL_ID]
+    filePath = S.OS.path.join("../.data", f"FAVORITECOINS.csv")
+    if S.OS.path.exists(filePath) is False: WRITE_FAVORITECOINS()
+    with open(filePath, "r", newline="") as csvFile:
+        headers = ["Coin_Symbol"]
+        df = S.PD.read_csv(filePath, names=headers)
+    csvFile.close()
+    favorite_coins = df["Coin_Symbol"].tolist()
+    return favorite_coins[SYMBOL_ID]
 
 
-def GET_PERIOD_FROM_ID(PERIOD_ID):
-    return S.CANDLE_PEROIDS[PERIOD_ID]
+def GET_PERIOD_FROM_ID(PERIOD_ID): return S.CANDLE_PEROIDS[PERIOD_ID]
 # ----------------------------------------------------------------

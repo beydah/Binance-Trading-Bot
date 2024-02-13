@@ -2,6 +2,7 @@
 from binance import Client as BINANCE
 import csv as CSV
 import os as OS
+import heapq as HEAP
 from datetime import datetime as TIME
 from datetime import timedelta as TD
 import pandas as PD
@@ -24,9 +25,7 @@ BOLL_LENGTH = 20
 BOLL_STD = 2
 # ----------------------------------------------------------------
 # Other Settings
-COIN_SYMBOLS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "ADAUSDT"]
 CANDLE_PEROIDS = ["8h", "4h", "2h", "1h", "15m"]
 CHANGELIST_DAYS = [1, 7, 30, 90, 180, 365]
 BINANCE_COMISSION_RATE = 0.1 / 100
-CANDLE_LIMIT = 100
 # ----------------------------------------------------------------

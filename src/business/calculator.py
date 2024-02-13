@@ -26,16 +26,11 @@ def TEST_PRINT_RESULT(LEFT_SMYBOL, RIGHT_SYMBOL, CANDLE_PERIOD, ALGORITHM_NAME, 
     message = (f"Algorithm: {ALGORITHM_NAME}\n"
                f"Symbol: {LEFT_SMYBOL + RIGHT_SYMBOL} - Period: {CANDLE_PERIOD}\n"
                f"Total Transactions: {BUY_NUM + SELL_NUM}\n")
-
-    if TOTAL_INVESMENT is not None or 0:
-        message += f"Total Investment: {TOTAL_INVESMENT} - {RIGHT_SYMBOL}\n"
-
+    if TOTAL_INVESMENT is not None or 0: message += f"Total Investment: {TOTAL_INVESMENT} - {RIGHT_SYMBOL}\n"
     if TOTAL_COIN != 0:
         message += (f"Total Coin: {TOTAL_COIN} - {LEFT_SMYBOL}\n"
                     f"Current Wallet: {TOTAL_COIN * CLOSE_PRICE} - {RIGHT_SYMBOL}")
-
-    else:
-        message += f"Current Wallet: {WALLET} - {RIGHT_SYMBOL}"
+    else: message += f"Current Wallet: {WALLET} - {RIGHT_SYMBOL}"
 
     B.SEND_MESSAGE(message)
     print("####################################################")
@@ -66,4 +61,14 @@ def CHANGE_PERCENT(COIN_SYMBOL, DAYS):
 
     B.DELETE_CANDLE(COIN_SYMBOL, "1m")
     return percentChange
+
+
+def FIND_MINIMUMLIST():
+    df = B.READ_CHANGELIST()
+
+    minimumAVGList = S.HEAP.nsmallest(5, df["AVG_Percent"])
+    minimumCoinList = df.loc[df["AVG_Percent"].isin(minimumAVGList), ["Coin_Symbol", "AVG_Percent"]]
+    df_minimumCoinList = minimumCoinList.sort_values("AVG_Percent")
+
+    return df_minimumCoinList["Coin_Symbol"]
 # ----------------------------------------------------------------
