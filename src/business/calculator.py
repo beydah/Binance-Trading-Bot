@@ -1,22 +1,24 @@
-# Added Pages
-from src.settings import settings as S
+# ----------------------------------------------------------------
+# Added Links
 from src.business import business as B
-
-
+from src.business import indicator as INDICATOR
+from src.business import backtest as TEST
+from src.settings import settings as LIB
+from src.settings import api as API
 # ----------------------------------------------------------------
 
 
 # Test Calculations
 def TEST_BUY(WEALTH_QUANTITY, WEALTH_PRICE):
     coinQuantity = WEALTH_QUANTITY / WEALTH_PRICE
-    commission = coinQuantity * S.BINANCE_COMISSION_RATE
+    commission = coinQuantity * LIB.BINANCE_COMISSION_RATE
     coinQuantity -= commission
     return coinQuantity
 
 
 def TEST_SELL(WEALTH_QUANTITY, WEALTH_PRICE):
     coinQuantity = WEALTH_QUANTITY * WEALTH_PRICE
-    commission = coinQuantity * S.BINANCE_COMISSION_RATE
+    commission = coinQuantity * LIB.BINANCE_COMISSION_RATE
     coinQuantity -= commission
     return coinQuantity
 
@@ -36,16 +38,14 @@ def TEST_PRINT_RESULT(LEFT_SMYBOL, RIGHT_SYMBOL, CANDLE_PERIOD, ALGORITHM_NAME, 
     print("####################################################")
     print(message)
     print("####################################################")
-
-
 # ----------------------------------------------------------------
 
 
 # Other Calculations
 def CHANGE_PERCENT(COIN_SYMBOL, DAYS):
-    past = S.TD(days=DAYS)
+    past = LIB.TD(days=DAYS)
 
-    today = S.TIME.now()
+    today = LIB.TIME.now()
     past_date = today - past
     today = today.strftime("%Y-%m-%d %H:%M:%S")
     past_date = past_date.strftime("%Y-%m-%d %H:%M:%S")
@@ -66,7 +66,7 @@ def CHANGE_PERCENT(COIN_SYMBOL, DAYS):
 def FIND_MINIMUMLIST():
     df = B.READ_CHANGELIST()
 
-    minimumAVGList = S.HEAP.nsmallest(5, df["AVG_Percent"])
+    minimumAVGList = LIB.HEAP.nsmallest(5, df["AVG_Percent"])
     minimumCoinList = df.loc[df["AVG_Percent"].isin(minimumAVGList), ["Coin_Symbol", "AVG_Percent"]]
     df_minimumCoinList = minimumCoinList.sort_values("AVG_Percent")
 

@@ -1,22 +1,23 @@
+# ----------------------------------------------------------------
 # Added Libraries
 from binance import Client as BINANCE
+import telebot as BOT
+from telebot import types as TYPES
+import requests as REQUEST
 import csv as CSV
 import os as OS
 import heapq as HEAP
-from datetime import datetime as TIME
-from datetime import timedelta as TD
 import pandas as PD
 import pandas_ta as TA
-import telebot as BOT
-import requests as REQUEST
-from telebot import types as TYPES
+from datetime import datetime as TIME
+from datetime import timedelta as TD
 # ----------------------------------------------------------------
-# Indicator Settings
-STOCHRSI_RSI_LENGTH = 5
-STOCHRSI_STOCH_LENGTH = 5
-STOCHRSI_SMOOTH_K = 5
-STOCHRSI_SMOOTH_D = 5
-RSI_LENGTH = 14
+# Indicator SettingS
+STOCHRSI_RSI_LENGTH = 11
+STOCHRSI_STOCH_LENGTH = 11
+STOCHRSI_SMOOTH_K = 11
+STOCHRSI_SMOOTH_D = 11
+RSI_LENGTH = 11  # 11
 MA_LENGTHS = [25, 50, 200]
 MACD_FAST = 12
 MACD_SLOW = 26
