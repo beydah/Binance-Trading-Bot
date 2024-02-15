@@ -18,7 +18,6 @@ def WRITE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None, CANDLE_LIMIT=None):
     if DATETIME is None:
         DATETIME = LIB.TIME.now()
         DATETIME = DATETIME.strftime("%Y-%m-%d %H:%M:%S")
-
     candleList = CLIENT.get_historical_klines(symbol=COIN_SYMBOL, interval=CANDLE_PERIOD,
                                               end_str=DATETIME, limit=CANDLE_LIMIT)
     if not LIB.OS.path.exists("../.data"): LIB.OS.makedirs("../.data")
@@ -68,14 +67,14 @@ def WRITE_CHANGELIST():
     with open(filePath, 'w', newline='') as csvFile:
         coinList = READ_COINLIST()
         writer = LIB.CSV.writer(csvFile, delimiter=',')
-        SEND_MESSAGE(f"CHANGELIST File Updating...")
+        CALCULATE.SEND_MESSAGE(f"CHANGELIST File Updating...")
         for i in range(len(coinList)):
             coinSymbol = coinList[i] + "USDT"
             day = [0, 0, 0, 0, 0, 0]
-            for j in range(6): day[j] = CALCULATE.CHANGE_PERCENT(coinSymbol, LIB.CHANGELIST_DAYS[j])
+            for j in range(6): day[j] = CALCULATE.GET_CHANGE_PERCENT(coinSymbol, LIB.CHANGELIST_DAYS[j])
             avg = round((day[0] + day[1] + day[2] + day[3] + day[4] + day[5]) / 6, 4)
             writer.writerow([coinSymbol, day[0], day[1], day[2], day[3], day[4], day[5], avg])
-        SEND_MESSAGE("CHANGELIST File Updated.")
+        CALCULATE.SEND_MESSAGE("CHANGELIST File Updated.")
     csvFile.close()
     return filePath
 
@@ -90,37 +89,14 @@ def READ_CHANGELIST():
     return df
 
 
-def WRITE_FAVORITECOINS():
+def WRITE_FAVORITELIST():
     if not LIB.OS.path.exists("../.data"): LIB.OS.makedirs("../.data")
-    filePath = LIB.OS.path.join("../.data", f"FAVORITECOINS.csv")
+    filePath = LIB.OS.path.join("../.data", f"FAVORITELIST.csv")
     with open(filePath, 'w', newline='') as csvFile:
-        minimumCoinList = CALCULATE.FIND_MINIMUMLIST()
+        CALCULATE.SEND_MESSAGE(f"FAVORITELIST File Updating...")
+        minimumCoinList = CALCULATE.GET_MINLIST()
         writer = LIB.CSV.writer(csvFile, delimiter=',')
         for coin in minimumCoinList: writer.writerow([coin])
+        CALCULATE.SEND_MESSAGE(f"FAVORITELIST File Updated.")
     csvFile.close()
-# ----------------------------------------------------------------
-
-
-# Telegram Transactions
-def SEND_MESSAGE(BOT_MESSAGE):
-    URL = (f"https://api.telegram.org/bot{API.TELEGRAM_BOT_TOKEN}"
-           f"/sendMessage?chat_id={API.TELEGRAM_USER_ID}"
-           f"&parse_mode=Markdown&text={BOT_MESSAGE}")
-    LIB.REQUEST.get(URL)
-# ----------------------------------------------------------------
-
-
-# Other Transactions
-def GET_SYMBOL_FROM_ID(SYMBOL_ID):
-    filePath = LIB.OS.path.join("../.data", f"FAVORITECOINS.csv")
-    if LIB.OS.path.exists(filePath) is False: WRITE_FAVORITECOINS()
-    with open(filePath, "r", newline="") as csvFile:
-        headers = ["Coin_Symbol"]
-        df = LIB.PD.read_csv(filePath, names=headers)
-    csvFile.close()
-    favorite_coins = df["Coin_Symbol"].tolist()
-    return favorite_coins[SYMBOL_ID]
-
-
-def GET_PERIOD_FROM_ID(PERIOD_ID): return LIB.CANDLE_PEROIDS[PERIOD_ID]
 # ----------------------------------------------------------------
