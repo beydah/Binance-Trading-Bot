@@ -62,13 +62,13 @@ def GOLDENCROSS_SIGNAL(OLD_SMA50, OLD_SMA200, SMA50, SMA200):
 
 
 def RSI_SIGNAL(RSI_NUM):
-    if 10 > RSI_NUM < 30: return 1
-    elif 70 > RSI_NUM < 90: return -1
+    if RSI_NUM < 30: return 1
+    elif RSI_NUM > 70: return -1
     else: return 0
 
 
 def STOCHRSI_SIGNAL(STOCHRSI_NUM):
-    if 10 > STOCHRSI_NUM < 30: return 1
-    elif 70 > STOCHRSI_NUM < 90: return -1
+    if STOCHRSI_NUM < 30: return 1
+    elif STOCHRSI_NUM > 70: return -1
     else: return 0
 # ----------------------------------------------------------------

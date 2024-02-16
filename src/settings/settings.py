@@ -13,11 +13,11 @@ from datetime import datetime as TIME
 from datetime import timedelta as TD
 # ----------------------------------------------------------------
 # Indicator SettingS
-STOCHRSI_RSI_LENGTH = 11
-STOCHRSI_STOCH_LENGTH = 11
-STOCHRSI_SMOOTH_K = 11
-STOCHRSI_SMOOTH_D = 11
-RSI_LENGTH = 11
+STOCHRSI_RSI_LENGTH = 5
+STOCHRSI_STOCH_LENGTH = 5
+STOCHRSI_SMOOTH_K = 5
+STOCHRSI_SMOOTH_D = 5
+RSI_LENGTH = 14
 MA_LENGTHS = [25, 50, 200]
 MACD_FAST = 12
 MACD_SLOW = 26
