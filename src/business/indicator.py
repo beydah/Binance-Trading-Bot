@@ -49,9 +49,15 @@ def BOLL(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None):
 
 
 # Signal Calculations
-def DCA_SIGNAL(OLD_PRICE, OLD_SMA25, PRICE, SMA25):
+def DCA_SIGNAL(OLD_PRICE, PRICE, OLD_SMA25, SMA25):
     if OLD_PRICE < OLD_SMA25 and PRICE > SMA25: return 1
     elif OLD_PRICE > OLD_SMA25 and PRICE < SMA25: return -1
+    else: return 0
+
+
+def EMA_SIGNAL(OLD_PRICE, PRICE, OLD_EMA, EMA_NUM):
+    if OLD_PRICE < OLD_EMA and PRICE > EMA_NUM: return 1
+    elif OLD_PRICE > OLD_EMA and PRICE < EMA_NUM: return -1
     else: return 0
 
 
@@ -70,5 +76,25 @@ def RSI_SIGNAL(RSI_NUM):
 def STOCHRSI_SIGNAL(STOCHRSI_NUM):
     if STOCHRSI_NUM < 30: return 1
     elif STOCHRSI_NUM > 70: return -1
+    else: return 0
+
+
+def MIX_SIGNAL(OLD_PRICE, PRICE, OLD_SMA25, SMA25, OLD_SMA50, SMA50,
+               OLD_SMA200, SMA200, OLD_EMA25, EMA25, STOCHRSI_NUM, RSI_NUM):
+    signalBuy = 0
+    signalSell = 0
+    signalLimit = 3
+    if DCA_SIGNAL(OLD_PRICE, OLD_SMA25, PRICE, SMA25) == 1: signalBuy += 1
+    elif DCA_SIGNAL(OLD_PRICE, OLD_SMA25, PRICE, SMA25) == -1: signalSell += 1
+    if GOLDENCROSS_SIGNAL(OLD_SMA50, OLD_SMA200, SMA50, SMA200) == 1: signalBuy += 1
+    elif GOLDENCROSS_SIGNAL(OLD_SMA50, OLD_SMA200, SMA50, SMA200) == -1: signalSell += 1
+    if EMA_SIGNAL(OLD_PRICE, OLD_EMA25, PRICE, EMA25) == 1: signalBuy += 1
+    elif EMA_SIGNAL(OLD_PRICE, OLD_EMA25, PRICE, EMA25) == -1: signalSell += 1
+    if STOCHRSI_SIGNAL(STOCHRSI_NUM) == 1: signalBuy += 1
+    elif STOCHRSI_SIGNAL(STOCHRSI_NUM) == -1: signalSell += 1
+    if RSI_SIGNAL(RSI_NUM) == 1: signalBuy += 1
+    elif RSI_SIGNAL(RSI_NUM) == -1: signalSell += 1
+    if signalBuy >= signalLimit: return 1
+    elif signalSell >= signalLimit: return -1
     else: return 0
 # ----------------------------------------------------------------
