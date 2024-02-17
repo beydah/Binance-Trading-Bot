@@ -1,0 +1,9 @@
+binance
+telebot
+pandas
+pandas_ta
+requests
+os
+csv
+heapq
+datetime
