@@ -12,6 +12,7 @@ def TEST_BUY(WEALTH_QUANTITY, WEALTH_PRICE):
     coinQuantity = WEALTH_QUANTITY / WEALTH_PRICE
     commission = coinQuantity * DEF.BINANCE_COMISSION_RATE
     coinQuantity -= commission
+    coinQuantity = round(coinQuantity, 6)
     return coinQuantity
 
 
@@ -19,6 +20,7 @@ def TEST_SELL(WEALTH_QUANTITY, WEALTH_PRICE):
     coinQuantity = WEALTH_QUANTITY * WEALTH_PRICE
     commission = coinQuantity * DEF.BINANCE_COMISSION_RATE
     coinQuantity -= commission
+    coinQuantity = round(coinQuantity, 6)
     return coinQuantity
 # ----------------------------------------------------------------
 
@@ -26,22 +28,29 @@ def TEST_SELL(WEALTH_QUANTITY, WEALTH_PRICE):
 # Message Calculations
 def SEND_MESSAGE(BOT_MESSAGE):
     print(BOT_MESSAGE)
-    URL = (f"https://api.telegram.org/bot{API.TELEGRAM_BOT_TOKEN}"
-           f"/sendMessage?chat_id={API.TELEGRAM_USER_ID}"
-           f"&parse_mode=Markdown&text={BOT_MESSAGE}")
-    LIB.REQUEST.get(URL)
+    try:
+        URL = (f"https://api.telegram.org/bot{API.TELEGRAM_BOT_TOKEN}"
+               f"/sendMessage?chat_id={API.TELEGRAM_USER_ID}"
+               f"&parse_mode=Markdown&text={BOT_MESSAGE}")
+        LIB.REQUEST.get(URL)
+    except Exception: print(f"Error: {Exception.__class__.__name__} - {Exception}")
 
 
-def TEST_MESSAGE(LEFT_SMYBOL, RIGHT_SYMBOL, CANDLE_PERIOD, ALGORITHM_NAME, WALLET,
-                 TOTAL_COIN, BUY_NUM, SELL_NUM, CLOSE_PRICE, TOTAL_INVESMENT):
+def TEST_MESSAGE(ALGORITHM_NAME, LEFT_SMYBOL, RIGHT_SYMBOL, CANDLE_PERIOD, WALLET,
+                 TOTAL_COIN, TOTAL_INVESMENT, BUY_NUM, SELL_NUM, CLOSE_PRICE):
     message = (f"Algorithm: {ALGORITHM_NAME}\n"
                f"Symbol: {LEFT_SMYBOL + RIGHT_SYMBOL} - Period: {CANDLE_PERIOD}\n"
                f"Total Transactions: {BUY_NUM + SELL_NUM}\n"
                f"Total Investment: {TOTAL_INVESMENT} - {RIGHT_SYMBOL}\n")
     if TOTAL_COIN != 0:
+        coinWallet = TOTAL_COIN * CLOSE_PRICE
+        coinWallet = round(coinWallet, 2)
+        TOTAL_COIN = round(TOTAL_COIN, 6)
         message += (f"Total Coin: {TOTAL_COIN} - {LEFT_SMYBOL}\n"
-                    f"Current Wallet: {TOTAL_COIN * CLOSE_PRICE} - {RIGHT_SYMBOL}")
-    else: message += f"Current Wallet: {WALLET} - {RIGHT_SYMBOL}"
+                    f"Current Wallet: {coinWallet} - {RIGHT_SYMBOL}")
+    else:
+        WALLET = round(WALLET, 2)
+        message += f"Current Wallet: {WALLET} - {RIGHT_SYMBOL}"
     SEND_MESSAGE(message)
 # ----------------------------------------------------------------
 
@@ -67,15 +76,13 @@ def GET_CHANGE_PERCENT(COIN_SYMBOL, DAYS):
 
 def GET_MINLIST():
     df = DATA.READ_CHANGELIST()
+    maxAVGList = LIB.HEAP.nlargest(5, df["AVG_Percent"])
+    maxCoinList = df.loc[df["AVG_Percent"].isin(maxAVGList), ["Coin_Symbol", "AVG_Percent"]]
     minAVGList = LIB.HEAP.nsmallest(5, df["AVG_Percent"])
     minCoinList = df.loc[df["AVG_Percent"].isin(minAVGList), ["Coin_Symbol", "AVG_Percent"]]
     df_minCoinList = minCoinList.sort_values("AVG_Percent")
-    SEND_MESSAGE(f"Favorite List: \n{minCoinList}")
-
-    maxAVGList = LIB.HEAP.nlargest(5, df["AVG_Percent"])
-    maxCoinList = df.loc[df["AVG_Percent"].isin(maxAVGList), ["Coin_Symbol", "AVG_Percent"]]
     SEND_MESSAGE(f"Alert List: \n{maxCoinList}")
-
+    SEND_MESSAGE(f"Favorite List: \n{minCoinList}")
     return df_minCoinList["Coin_Symbol"]
 
 
@@ -86,9 +93,6 @@ def GET_SYMBOL_FROM_ID(SYMBOL_ID):
         headers = ["Coin_Symbol"]
         df = LIB.PD.read_csv(filePath, names=headers)
     csvFile.close()
-    favorite_coins = df["Coin_Symbol"].tolist()
-    return favorite_coins[SYMBOL_ID]
-
-
-def GET_PERIOD_FROM_ID(PERIOD_ID): return DEF.CANDLE_PEROIDS[PERIOD_ID]
+    favoriteCoins = df["Coin_Symbol"].tolist()
+    return favoriteCoins[SYMBOL_ID]
 # ----------------------------------------------------------------

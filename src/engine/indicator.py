@@ -7,43 +7,38 @@ from src.settings import settings as DEF
 
 
 # Indicator Calculations
-def SMA(COIN_SYMBOL, CANDLE_PERIOD, MA_LENGTH, DATETIME=None):
-    closePrice = DATA.READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME, 1000, 4)
-    sma = LIB.TA.ma("sma", closePrice, length=MA_LENGTH)
+def SMA(COIN_SYMBOL, CANDLE_PERIOD, MA_LENGTH, DATETIME=None, CLOSE_PRICE=None):
+    if CLOSE_PRICE is None:
+        CLOSE_PRICE = DATA.READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME, None, 4)
+        DATA.DELETE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD)
+    sma = LIB.TA.ma("sma", CLOSE_PRICE, length=MA_LENGTH)
     return sma
 
 
-def EMA(COIN_SYMBOL, CANDLE_PERIOD, MA_LENGTH, DATETIME=None):
-    closePrice = DATA.READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME, 1000, 4)
-    ema = LIB.TA.ema(name="ema", close=closePrice, length=MA_LENGTH)
+def EMA(COIN_SYMBOL, CANDLE_PERIOD, MA_LENGTH, DATETIME=None, CLOSE_PRICE=None):
+    if CLOSE_PRICE is None:
+        CLOSE_PRICE = DATA.READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME, None, 4)
+        DATA.DELETE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD)
+    ema = LIB.TA.ema(name="ema", close=CLOSE_PRICE, length=MA_LENGTH)
     return ema
 
 
-def RSI(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None):
-    closePrice = DATA.READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME, 1000, 4)
-    rsi = LIB.TA.rsi(closePrice, DEF.RSI_LENGTH)
+def RSI(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None, CLOSE_PRICE=None):
+    if CLOSE_PRICE is None:
+        CLOSE_PRICE = DATA.READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME, None, 4)
+        DATA.DELETE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD)
+    rsi = LIB.TA.rsi(CLOSE_PRICE, DEF.RSI_LENGTH)
     return rsi
 
 
-def STOCHRSI(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None):
-    closePrice = DATA.READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME, 1000, 4)
-    stochRSI = LIB.TA.stochrsi(closePrice, DEF.STOCHRSI_STOCH_LENGTH, DEF.STOCHRSI_RSI_LENGTH,
+def STOCHRSI(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None, CLOSE_PRICE=None):
+    if CLOSE_PRICE is None:
+        CLOSE_PRICE = DATA.READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME, None, 4)
+        DATA.DELETE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD)
+    stochRSI = LIB.TA.stochrsi(CLOSE_PRICE, DEF.STOCHRSI_STOCH_LENGTH, DEF.STOCHRSI_RSI_LENGTH,
                                DEF.STOCHRSI_SMOOTH_K, DEF.STOCHRSI_SMOOTH_D)
     stochRSI.columns = ["stochRSI_K", "stochRSI_D"]
     return stochRSI
-
-
-'''
-Not Used in Version 1.0.0:
-def MACD(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None):
-    closePrice = DATA.READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME, 1000, 4)
-    macd = LIB.TA.macd(closePrice, DEFAULT.MACD_FAST, DEFAULT.MACD_SLOW, DEFAULT.MACD_SIGNAL)
-    return macd
-def BOLL(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None):
-    closePrice = DATA.READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME, 1000, 4)
-    boll = LIB.TA.bbands(closePrice, DEFAULT.BOLL_LENGTH)
-    return boll
-'''
 # ----------------------------------------------------------------
 
 
@@ -54,13 +49,7 @@ def DCA_SIGNAL(OLD_PRICE, PRICE, OLD_SMA25, SMA25):
     else: return 0
 
 
-def EMA_SIGNAL(OLD_PRICE, PRICE, OLD_EMA, EMA_NUM):
-    if OLD_PRICE < OLD_EMA and PRICE > EMA_NUM: return 1
-    elif OLD_PRICE > OLD_EMA and PRICE < EMA_NUM: return -1
-    else: return 0
-
-
-def GOLDENCROSS_SIGNAL(OLD_SMA50, OLD_SMA200, SMA50, SMA200):
+def GOLDENCROSS_SIGNAL(OLD_SMA50, SMA50, OLD_SMA200, SMA200):
     if OLD_SMA50 < OLD_SMA200 and SMA50 > SMA200: return 1
     elif OLD_SMA50 > OLD_SMA200 and SMA50 < SMA200: return -1
     else: return 0
@@ -72,27 +61,60 @@ def RSI_SIGNAL(RSI_NUM):
     else: return 0
 
 
-def STOCHRSI_SIGNAL(STOCHRSI_NUM):
-    if STOCHRSI_NUM < 30: return 1
-    elif STOCHRSI_NUM > 70: return -1
+def MIX_SIGNAL(OLD_PRICE, PRICE, OLD_SMA25, SMA25, OLD_SMA50, SMA50,
+               OLD_SMA200, SMA200, OLD_EMA25, EMA25, RSI_NUM, STOCHRSI_NUM):
+    signalBuy = signalSell = 0
+    signalLimit = 3
+    dcaSignal = DCA_SIGNAL(OLD_PRICE, PRICE, OLD_SMA25, SMA25)
+    emaSignal = DCA_SIGNAL(OLD_PRICE, PRICE, OLD_EMA25, EMA25)
+    goldenCrossSignal = GOLDENCROSS_SIGNAL(OLD_SMA50, SMA50, OLD_SMA200, SMA200)
+    rsiSignal = RSI_SIGNAL(RSI_NUM)
+    stochRSISignal = RSI_SIGNAL(STOCHRSI_NUM)
+    if dcaSignal == 1: signalBuy += 1
+    elif dcaSignal == -1: signalSell += 1
+    if emaSignal == 1: signalBuy += 1
+    elif emaSignal == -1: signalSell += 1
+    if goldenCrossSignal == 1: signalBuy += 1
+    elif goldenCrossSignal == -1: signalSell += 1
+    if rsiSignal == 1: signalBuy += 1
+    elif rsiSignal == -1: signalSell += 1
+    if stochRSISignal == 1: signalBuy += 1
+    elif stochRSISignal == -1: signalSell += 1
+    # if signalBuy == signalSell: return 0
+    if signalBuy >= signalLimit: return 1
+    elif signalSell >= signalLimit: return -1
     else: return 0
 
 
-def MIX_SIGNAL(OLD_PRICE, PRICE, OLD_SMA25, SMA25, OLD_SMA50, SMA50,
-               OLD_SMA200, SMA200, OLD_EMA25, EMA25, STOCHRSI_NUM, RSI_NUM):
-    signalBuy = 0
-    signalSell = 0
+def PERIOD_MIX_SIGNAL(COIN_SYMBOL, CANDLE_PERIOD, DATETIME):
+    closePrice = DATA.READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME, 250, 4)
+    DATA.DELETE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD)
+    sma25 = SMA(COIN_SYMBOL, CANDLE_PERIOD, DEF.MA_LENGTHS[0], DATETIME, closePrice)
+    ema25 = EMA(COIN_SYMBOL, CANDLE_PERIOD, DEF.MA_LENGTHS[0], DATETIME, closePrice)
+    sma50 = SMA(COIN_SYMBOL, CANDLE_PERIOD, DEF.MA_LENGTHS[1], DATETIME, closePrice)
+    sma200 = SMA(COIN_SYMBOL, CANDLE_PERIOD, DEF.MA_LENGTHS[2], DATETIME, closePrice)
+    rsi = RSI(COIN_SYMBOL, CANDLE_PERIOD, DATETIME, closePrice)
+    stochRSI = STOCHRSI(COIN_SYMBOL, CANDLE_PERIOD, DATETIME, closePrice)
+    stochRSI_K = stochRSI["stochRSI_K"]
+    past = len(closePrice) - 3
+    last = len(closePrice) - 2
+    # now = len(closePrice) - 1
+    # if not any(LIB.PD.isna([stochRSI_K[now], rsi[now], sma50[now], sma25[now]])):
+    if not any(LIB.PD.isna([stochRSI_K[past], rsi[past], sma50[past], sma25[past]])):
+        return MIX_SIGNAL(closePrice[past], closePrice[last], sma25[past], sma25[last],
+                          sma50[past], sma50[last], sma200[past], sma200[last], ema25[past],
+                          ema25[last], rsi[last], stochRSI_K[last])
+    return 0
+
+
+def FULL_PERIOD_MIX_SIGNAL(COIN_SYMBOL, DATETIME):
+    signalBuy = signalSell = 0
     signalLimit = 3
-    if DCA_SIGNAL(OLD_PRICE, OLD_SMA25, PRICE, SMA25) == 1: signalBuy += 1
-    elif DCA_SIGNAL(OLD_PRICE, OLD_SMA25, PRICE, SMA25) == -1: signalSell += 1
-    if GOLDENCROSS_SIGNAL(OLD_SMA50, OLD_SMA200, SMA50, SMA200) == 1: signalBuy += 1
-    elif GOLDENCROSS_SIGNAL(OLD_SMA50, OLD_SMA200, SMA50, SMA200) == -1: signalSell += 1
-    if EMA_SIGNAL(OLD_PRICE, OLD_EMA25, PRICE, EMA25) == 1: signalBuy += 1
-    elif EMA_SIGNAL(OLD_PRICE, OLD_EMA25, PRICE, EMA25) == -1: signalSell += 1
-    if STOCHRSI_SIGNAL(STOCHRSI_NUM) == 1: signalBuy += 1
-    elif STOCHRSI_SIGNAL(STOCHRSI_NUM) == -1: signalSell += 1
-    if RSI_SIGNAL(RSI_NUM) == 1: signalBuy += 1
-    elif RSI_SIGNAL(RSI_NUM) == -1: signalSell += 1
+    for period in DEF.CANDLE_PEROIDS:
+        signal = PERIOD_MIX_SIGNAL(COIN_SYMBOL, period, DATETIME)
+        if signal == 1: signalBuy += 1
+        elif signal == -1: signalSell += 1
+    # if signalBuy == signalSell: return 0
     if signalBuy >= signalLimit: return 1
     elif signalSell >= signalLimit: return -1
     else: return 0

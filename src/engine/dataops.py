@@ -17,8 +17,14 @@ def WRITE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None, CANDLE_LIMIT=None):
     if DATETIME is None:
         DATETIME = LIB.TIME.now()
         DATETIME = DATETIME.strftime("%Y-%m-%d %H:%M:%S")
-    candleList = CLIENT.get_historical_klines(symbol=COIN_SYMBOL, interval=CANDLE_PERIOD,
-                                              end_str=DATETIME, limit=CANDLE_LIMIT)
+    while(True):
+        try:
+            candleList = CLIENT.get_historical_klines(symbol=COIN_SYMBOL, interval=CANDLE_PERIOD,
+                                                      end_str=DATETIME, limit=CANDLE_LIMIT)
+            break
+        except Exception:
+            CALCULATE.SEND_MESSAGE(f"Error: {Exception.__class__.__name__} - {Exception}")
+            LIB.SLEEP(15)
     if not LIB.OS.path.exists("../.data"): LIB.OS.makedirs("../.data")
     filePath = LIB.OS.path.join("../.data", f"{COIN_SYMBOL}_{CANDLE_PERIOD}.csv")
     with open(filePath, "w", newline='') as csvFile:
@@ -38,15 +44,15 @@ def READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None, CANDLE_LIMIT=None, HE
                    "Volume", "Close_Time", "QAV", "NAT", "TBBAV", "TBQAV", "Ignore"]
         df = LIB.PD.read_csv(filePath, names=headers)
     csvFile.close()
-    if HEAD_ID is None:
-        return df
-    elif -1 < HEAD_ID < 12:
-        return df[headers[HEAD_ID]]
+    if HEAD_ID is None: return df
+    elif HEAD_ID > -1 and HEAD_ID < 12: return df[headers[HEAD_ID]]
 
 
 def DELETE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD):
-    filePath = LIB.OS.path.join("../.data", f"{COIN_SYMBOL}_{CANDLE_PERIOD}.csv")
-    if LIB.OS.path.exists(filePath): LIB.OS.remove(filePath)
+    try:
+        filePath = LIB.OS.path.join("../.data", f"{COIN_SYMBOL}_{CANDLE_PERIOD}.csv")
+        if LIB.OS.path.exists(filePath): LIB.OS.remove(filePath)
+    except Exception: pass
 # ----------------------------------------------------------------
 
 
@@ -56,12 +62,17 @@ def READ_COINLIST():
     if not LIB.OS.path.exists(filePath):
         CALCULATE.SEND_MESSAGE("ERROR: coinlist.txt not exists.")
         return None
-    with open(filePath, "r") as txtFile:
-        coins = []
+    with open(filePath, "r+") as txtFile:
+        coinList = []
         for line in txtFile:
             line = line.strip()
-            if line and not ("\t" in line): coins.append(line)
-    return coins
+            if line and not ("\t" in line): coinList.append(line)
+        txtFile.seek(0)
+        txtFile.truncate()
+        for coin in coinList:
+            txtFile.write(coin + "\n")
+    txtFile.close()
+    return coinList
 
 
 def WRITE_CHANGELIST():
@@ -70,13 +81,13 @@ def WRITE_CHANGELIST():
     with open(filePath, 'w', newline='') as csvFile:
         coinList = READ_COINLIST()
         writer = LIB.CSV.writer(csvFile, delimiter=',')
-        CALCULATE.SEND_MESSAGE(f"CHANGELIST File Updating...")
-        for i in range(len(coinList)):
-            coinSymbol = coinList[i] + "USDT"
+        CALCULATE.SEND_MESSAGE(f"CHANGELIST File Updating (AVG: 3 Minutes)...")
+        for coin in coinList:
+            coin += "USDT"
             day = [0, 0, 0, 0, 0]
-            for j in range(5): day[j] = CALCULATE.GET_CHANGE_PERCENT(coinSymbol, DEF.CHANGELIST_DAYS[j])
+            for j in range(5): day[j] = CALCULATE.GET_CHANGE_PERCENT(coin, DEF.CHANGELIST_DAYS[j])
             avg = round((day[0] + day[1] + day[2] + day[3] + day[4]) / 5, 4)
-            writer.writerow([coinSymbol, day[0], day[1], day[2], day[3], day[4], avg])
+            writer.writerow([coin, day[0], day[1], day[2], day[3], day[4], avg])
         CALCULATE.SEND_MESSAGE("CHANGELIST File Updated.")
     csvFile.close()
     return filePath

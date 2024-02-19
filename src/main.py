@@ -10,50 +10,28 @@ from src.engine import algotest as TEST
 from src.engine import algotrade as TRADE
 from src.business import business as BUSINESS
 # ----------------------------------------------------------------
+
+
 # Test Area
-DATA.WRITE_FAVORITELIST()
-'''
-CALCULATE.SEND_MESSAGE("...TEST START...")
-TEST.MIX_ALGORITHM("BTC", "USDT", "15m", 1000)
-TEST.MIX_ALGORITHM("BTC", "USDT", "30m", 1000)
-TEST.MIX_ALGORITHM("BTC", "USDT", "1h", 1000)
-TEST.MIX_ALGORITHM("BTC", "USDT", "2h", 1000)
-TEST.MIX_ALGORITHM("BTC", "USDT", "4h", 1000)
-TEST.MIX_ALGORITHM("BTC", "USDT", "8h", 1000)
-CALCULATE.SEND_MESSAGE(".....")
-TEST.MIX_ALGORITHM("ID", "USDT", "15m", 1000)
-TEST.MIX_ALGORITHM("ID", "USDT", "30m", 1000)
-TEST.MIX_ALGORITHM("ID", "USDT", "1h", 1000)
-TEST.MIX_ALGORITHM("ID", "USDT", "2h", 1000)
-TEST.MIX_ALGORITHM("ID", "USDT", "4h", 1000)
-TEST.MIX_ALGORITHM("ID", "USDT", "8h", 1000)
-CALCULATE.SEND_MESSAGE(".....")
-TEST.MIX_ALGORITHM("MULTI", "USDT", "15m", 1000)
-TEST.MIX_ALGORITHM("MULTI", "USDT", "30m", 1000)
-TEST.MIX_ALGORITHM("MULTI", "USDT", "1h", 1000)
-TEST.MIX_ALGORITHM("MULTI", "USDT", "2h", 1000)
-TEST.MIX_ALGORITHM("MULTI", "USDT", "4h", 1000)
-TEST.MIX_ALGORITHM("MULTI", "USDT", "8h", 1000)
-CALCULATE.SEND_MESSAGE(".....")
-TEST.MIX_ALGORITHM("XEC", "USDT", "15m", 1000)
-TEST.MIX_ALGORITHM("XEC", "USDT", "30m", 1000)
-TEST.MIX_ALGORITHM("XEC", "USDT", "1h", 1000)
-TEST.MIX_ALGORITHM("XEC", "USDT", "2h", 1000)
-TEST.MIX_ALGORITHM("XEC", "USDT", "4h", 1000)
-TEST.MIX_ALGORITHM("XEC", "USDT", "8h", 1000)
-CALCULATE.SEND_MESSAGE(".....")
-TEST.MIX_ALGORITHM("AGIX", "USDT", "15m", 1000)
-TEST.MIX_ALGORITHM("AGIX", "USDT", "30m", 1000)
-TEST.MIX_ALGORITHM("AGIX", "USDT", "1h", 1000)
-TEST.MIX_ALGORITHM("AGIX", "USDT", "2h", 1000)
-TEST.MIX_ALGORITHM("AGIX", "USDT", "4h", 1000)
-TEST.MIX_ALGORITHM("AGIX", "USDT", "8h", 1000)
-CALCULATE.SEND_MESSAGE("...TEST END...")
-TEST.DCA_ALGORITHM("BTC", "USDT", "1h", 1000)
-TEST.EMA_ALGORITHM("BTC", "USDT", "1h", 1000)
-TEST.GOLDENCROSS_ALGORITHM("BTC", "USDT", "1h", 1000)
-TEST.RSI_ALGORITHM("BTC", "USDT", "1h", 1000)
-TEST.STOCHRSI_ALGORITHM("BTC", "USDT", "1h", 1000)
-TEST.MIX_ALGORITHM("BTC", "USDT", "1h", 1000)
-'''
+def ALGOTEST_MIX():
+    coin = ["BTC", "ETH", "BNB", "SOL", "XRP"]
+    rightSymbol = "USDT"
+    wallet = 1000
+    CALCULATE.SEND_MESSAGE(".....TEST START.....")
+    DATA.WRITE_FAVORITELIST()
+    for i in range(5):
+        for j in range(5):
+            TEST.GOLDENCROSS_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
+            TEST.DCA_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
+            TEST.EMA_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
+            TEST.RSI_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
+            TEST.STOCHRSI_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
+            TEST.MIX_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
+            if j < 4: CALCULATE.SEND_MESSAGE(".....NEXT PERIOD.....")
+        TEST.FULL_PERIOD_MIX_ALGORITHM(coin[i], rightSymbol, wallet)
+        if i < 4: CALCULATE.SEND_MESSAGE(".....NEXT COIN.....")
+    CALCULATE.SEND_MESSAGE(".....TEST END.....")
+
+
+ALGOTEST_MIX()
 # ----------------------------------------------------------------
