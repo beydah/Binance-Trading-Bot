@@ -191,7 +191,7 @@ def FULL_PERIOD_MIX_ALGORITHM(LEFT_SMYBOL, RIGHT_SYMBOL, WALLET):
     DATA.DELETE_CANDLE(coinSymbol, "15m")
     CALCULATE.SEND_MESSAGE("Full Period Mix Algorithm Calculating (AVG: 9 Minutes)...")
     for i in range(len(openTime)):
-        print(f"{i+1}. Candle Okunuyor")
+        print(f"{i+1}. Candle Reading")
         signal = INDICATOR.FULL_PERIOD_MIX_SIGNAL(coinSymbol, openTime[i])
         if signal == 1 and WALLET != 0:
             print("####################################################")

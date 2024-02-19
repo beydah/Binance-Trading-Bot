@@ -17,13 +17,13 @@ def WRITE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None, CANDLE_LIMIT=None):
     if DATETIME is None:
         DATETIME = LIB.TIME.now()
         DATETIME = DATETIME.strftime("%Y-%m-%d %H:%M:%S")
-    while(True):
+    while True:
         try:
             candleList = CLIENT.get_historical_klines(symbol=COIN_SYMBOL, interval=CANDLE_PERIOD,
                                                       end_str=DATETIME, limit=CANDLE_LIMIT)
             break
         except Exception:
-            CALCULATE.SEND_MESSAGE(f"Error: {Exception.__class__.__name__} - {Exception}")
+            CALCULATE.SEND_MESSAGE(f"Error 1: {Exception} - Internet / Binance Connection Could Not Be Established.")
             LIB.SLEEP(15)
     if not LIB.OS.path.exists("../.data"): LIB.OS.makedirs("../.data")
     filePath = LIB.OS.path.join("../.data", f"{COIN_SYMBOL}_{CANDLE_PERIOD}.csv")

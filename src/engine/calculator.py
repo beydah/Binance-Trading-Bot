@@ -33,7 +33,7 @@ def SEND_MESSAGE(BOT_MESSAGE):
                f"/sendMessage?chat_id={API.TELEGRAM_USER_ID}"
                f"&parse_mode=Markdown&text={BOT_MESSAGE}")
         LIB.REQUEST.get(URL)
-    except Exception: print(f"Error: {Exception.__class__.__name__} - {Exception}")
+    except Exception: print(f"Error 2: {Exception} - Internet / Telegram Connection Could Not Be Established.")
 
 
 def TEST_MESSAGE(ALGORITHM_NAME, LEFT_SMYBOL, RIGHT_SYMBOL, CANDLE_PERIOD, WALLET,
