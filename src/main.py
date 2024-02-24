@@ -18,7 +18,7 @@ def ALGOTEST_MIX():
     rightSymbol = "USDT"
     wallet = 1000
     CALCULATE.SEND_MESSAGE(".....TEST START.....")
-    DATA.WRITE_FAVORITELIST()
+    # DATA.WRITE_FAVORITELIST()
     for i in range(5):
         for j in range(5):
             TEST.GOLDENCROSS_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
@@ -28,10 +28,13 @@ def ALGOTEST_MIX():
             TEST.STOCHRSI_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
             TEST.MIX_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
             if j < 4: CALCULATE.SEND_MESSAGE(".....NEXT PERIOD.....")
-        TEST.FULL_PERIOD_MIX_ALGORITHM(coin[i], rightSymbol, wallet)
+        '''
+        '''
+        TEST.PERIOD_ALGORITHM(coin[i], rightSymbol, wallet)
         if i < 4: CALCULATE.SEND_MESSAGE(".....NEXT COIN.....")
     CALCULATE.SEND_MESSAGE(".....TEST END.....")
 
 
 ALGOTEST_MIX()
+print(CALCULATE.TOTAL_WALLET())
 # ----------------------------------------------------------------

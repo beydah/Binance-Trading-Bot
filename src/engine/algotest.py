@@ -182,7 +182,7 @@ def MIX_ALGORITHM(LEFT_SMYBOL, RIGHT_SYMBOL, CANDLE_PERIOD, WALLET):
                            totalCoin, totalInvesment, buyNum, sellNum, closePrice[len(closePrice) - 1])
 
 
-def FULL_PERIOD_MIX_ALGORITHM(LEFT_SMYBOL, RIGHT_SYMBOL, WALLET):
+def PERIOD_ALGORITHM(LEFT_SMYBOL, RIGHT_SYMBOL, WALLET):
     totalCoin = buyNum = sellNum = 0
     totalInvesment = WALLET
     coinSymbol = LEFT_SMYBOL + RIGHT_SYMBOL
@@ -192,7 +192,7 @@ def FULL_PERIOD_MIX_ALGORITHM(LEFT_SMYBOL, RIGHT_SYMBOL, WALLET):
     CALCULATE.SEND_MESSAGE("Full Period Mix Algorithm Calculating (AVG: 9 Minutes)...")
     for i in range(len(openTime)):
         print(f"{i+1}. Candle Reading")
-        signal = INDICATOR.FULL_PERIOD_MIX_SIGNAL(coinSymbol, openTime[i])
+        signal = INDICATOR.PERIOD_SIGNAL(coinSymbol, openTime[i])
         if signal == 1 and WALLET != 0:
             print("####################################################")
             totalCoin = CALCULATE.TEST_BUY(WALLET, closePrice[i])

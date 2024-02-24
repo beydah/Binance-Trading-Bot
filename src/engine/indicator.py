@@ -46,19 +46,19 @@ def STOCHRSI(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None, CLOSE_PRICE=None):
 def DCA_SIGNAL(OLD_PRICE, PRICE, OLD_SMA25, SMA25):
     if OLD_PRICE < OLD_SMA25 and PRICE > SMA25: return 1
     elif OLD_PRICE > OLD_SMA25 and PRICE < SMA25: return -1
-    else: return 0
+    return 0
 
 
 def GOLDENCROSS_SIGNAL(OLD_SMA50, SMA50, OLD_SMA200, SMA200):
     if OLD_SMA50 < OLD_SMA200 and SMA50 > SMA200: return 1
     elif OLD_SMA50 > OLD_SMA200 and SMA50 < SMA200: return -1
-    else: return 0
+    return 0
 
 
 def RSI_SIGNAL(RSI_NUM):
     if RSI_NUM < 30: return 1
     elif RSI_NUM > 70: return -1
-    else: return 0
+    return 0
 
 
 def MIX_SIGNAL(OLD_PRICE, PRICE, OLD_SMA25, SMA25, OLD_SMA50, SMA50,
@@ -80,13 +80,12 @@ def MIX_SIGNAL(OLD_PRICE, PRICE, OLD_SMA25, SMA25, OLD_SMA50, SMA50,
     elif rsiSignal == -1: signalSell += 1
     if stochRSISignal == 1: signalBuy += 1
     elif stochRSISignal == -1: signalSell += 1
-    # if signalBuy == signalSell: return 0
     if signalBuy >= signalLimit: return 1
     elif signalSell >= signalLimit: return -1
-    else: return 0
+    return 0
 
 
-def PERIOD_MIX_SIGNAL(COIN_SYMBOL, CANDLE_PERIOD, DATETIME):
+def MIX_PERIOD_SIGNAL(COIN_SYMBOL, CANDLE_PERIOD, DATETIME):
     closePrice = DATA.READ_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME, 250, 4)
     DATA.DELETE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD)
     sma25 = SMA(COIN_SYMBOL, CANDLE_PERIOD, DEF.MA_LENGTHS[0], DATETIME, closePrice)
@@ -98,8 +97,6 @@ def PERIOD_MIX_SIGNAL(COIN_SYMBOL, CANDLE_PERIOD, DATETIME):
     stochRSI_K = stochRSI["stochRSI_K"]
     past = len(closePrice) - 3
     last = len(closePrice) - 2
-    # now = len(closePrice) - 1
-    # if not any(LIB.PD.isna([stochRSI_K[now], rsi[now], sma50[now], sma25[now]])):
     if not any(LIB.PD.isna([stochRSI_K[past], rsi[past], sma50[past], sma25[past]])):
         return MIX_SIGNAL(closePrice[past], closePrice[last], sma25[past], sma25[last],
                           sma50[past], sma50[last], sma200[past], sma200[last], ema25[past],
@@ -107,15 +104,15 @@ def PERIOD_MIX_SIGNAL(COIN_SYMBOL, CANDLE_PERIOD, DATETIME):
     return 0
 
 
-def FULL_PERIOD_MIX_SIGNAL(COIN_SYMBOL, DATETIME):
+def PERIOD_SIGNAL(COIN_SYMBOL, DATETIME):
     signalBuy = signalSell = 0
-    signalLimit = 3
+    signalLimit = 2
     for period in DEF.CANDLE_PEROIDS:
-        signal = PERIOD_MIX_SIGNAL(COIN_SYMBOL, period, DATETIME)
+        signal = MIX_PERIOD_SIGNAL(COIN_SYMBOL, period, DATETIME)
         if signal == 1: signalBuy += 1
         elif signal == -1: signalSell += 1
-    # if signalBuy == signalSell: return 0
+    if signalBuy == signalSell: return 0
     if signalBuy >= signalLimit: return 1
     elif signalSell >= signalLimit: return -1
-    else: return 0
+    return 0
 # ----------------------------------------------------------------

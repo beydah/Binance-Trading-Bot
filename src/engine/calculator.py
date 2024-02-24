@@ -7,7 +7,7 @@ from src.engine import dataops as DATA
 # ----------------------------------------------------------------
 
 
-# Test Calculations
+# Order Calculations
 def TEST_BUY(WEALTH_QUANTITY, WEALTH_PRICE):
     coinQuantity = WEALTH_QUANTITY / WEALTH_PRICE
     commission = coinQuantity * DEF.BINANCE_COMISSION_RATE
@@ -22,6 +22,53 @@ def TEST_SELL(WEALTH_QUANTITY, WEALTH_PRICE):
     coinQuantity -= commission
     coinQuantity = round(coinQuantity, 6)
     return coinQuantity
+
+
+def TOTAL_WALLET(TRANSACTION=None):
+    df = DATA.READ_WALLET()
+    coin = df["Coin"]
+    balance = df["Balance"]
+    totalUSDT = 0
+    if TRANSACTION is None:
+        for i in range(len(coin)):
+            if coin[i][:2] == "LD": symbol = coin[i][2:]
+            else: symbol = coin[i]
+            if symbol == "USDT":
+                totalUSDT += balance[i]
+                continue
+            coinSymbol = symbol + "USDT"
+            closePrice = DATA.READ_CANDLE(coinSymbol, "1m", None, 1, 4)
+            DATA.DELETE_CANDLE(coinSymbol, "1m")
+            USDTBalance = closePrice[0] * balance[i]
+            totalUSDT += USDTBalance
+    elif TRANSACTION == 0:
+        for i in range(len(coin)):
+            if coin[i][:2] == "LD": continue
+            if coin[i] == "USDT":
+                totalUSDT += balance[i]
+                continue
+            coinSymbol = coin[i] + "USDT"
+            closePrice = DATA.READ_CANDLE(coinSymbol, "1m", None, 1, 4)
+            DATA.DELETE_CANDLE(coinSymbol, "1m")
+            USDTBalance = closePrice[0] * balance[i]
+            totalUSDT += USDTBalance
+    elif TRANSACTION == 1:
+        for i in range(len(coin)):
+            if coin[i][:2] != "LD": continue
+            symbol = coin[i][2:]
+            if symbol == "USDT":
+                totalUSDT += balance[i]
+                continue
+            coinSymbol = symbol + "USDT"
+            closePrice = DATA.READ_CANDLE(coinSymbol, "1m", None, 1, 4)
+            DATA.DELETE_CANDLE(coinSymbol, "1m")
+            USDTBalance = closePrice[0] * balance[i]
+            totalUSDT += USDTBalance
+    totalUSDT = round(totalUSDT, 2)
+    return totalUSDT
+
+    # Hesaplamaları DATA.WRITE_TOTAL_BALANCE içine gönder.
+
 # ----------------------------------------------------------------
 
 
@@ -57,20 +104,20 @@ def TEST_MESSAGE(ALGORITHM_NAME, LEFT_SMYBOL, RIGHT_SYMBOL, CANDLE_PERIOD, WALLE
 
 # Get Calculations
 def GET_CHANGE_PERCENT(COIN_SYMBOL, DAYS):
-    past = LIB.TD(days=DAYS)
-    today = LIB.TIME.now()
+    past = LIB.TIMEDELTA(days=DAYS)
+    today = LIB.DATETIME.now()
     past_date = today - past
     today = today.strftime("%Y-%m-%d %H:%M:%S")
     past_date = past_date.strftime("%Y-%m-%d %H:%M:%S")
     try:
-        temp = DATA.READ_CANDLE(COIN_SYMBOL, "1m", today, 1, 4)
-        currentPrice = temp[len(temp) - 1]
-        temp = DATA.READ_CANDLE(COIN_SYMBOL, "1m", past_date, 1, 4)
-        pastPrice = temp[len(temp) - 1]
+        pastPrices = DATA.READ_CANDLE(COIN_SYMBOL, "1m", past_date, 1, 4)
+        currentPrices = DATA.READ_CANDLE(COIN_SYMBOL, "1m", today, 1, 4)
+        DATA.DELETE_CANDLE(COIN_SYMBOL, "1m")
+        pastPrice = pastPrices[len(pastPrices) - 1]
+        currentPrice = currentPrices[len(currentPrices) - 1]
         priceDifference = currentPrice - pastPrice
         percentChange = round((priceDifference / pastPrice) * 100, 4)
     except Exception: percentChange = 0
-    DATA.DELETE_CANDLE(COIN_SYMBOL, "1m")
     return percentChange
 
 
