@@ -13,22 +13,22 @@ from src.engine import algotrade as TRADE
 
 # Test Area
 def ALGOTEST():
+    CALCULATE.SEND_MESSAGE(".....TEST START.....")
     # Test 1
-    CALCULATE.MESSAGE(".....TEST START.....")
+    '''
     test = DATA.READ_WALLET()
-    CALCULATE.MESSAGE(test)
+    CALCULATE.SEND_MESSAGE(test)
     test = DATA.READ_WALLET(COIN="LDUSDT")
-    CALCULATE.MESSAGE(test)
-    for i in range(2):
-        if i == 0:
-            for j in range(3): CALCULATE.MESSAGE(DATA.READ_WALLET(HEAD_ID=j))
-        else:
-            for j in range(3): CALCULATE.MESSAGE(DATA.READ_WALLET(COIN="LDUSDT", HEAD_ID=j))
-
+    CALCULATE.SEND_MESSAGE(test)
+    for i in range(3): CALCULATE.SEND_MESSAGE(DATA.READ_WALLET(HEAD_ID=i))
+    for i in range(3): CALCULATE.SEND_MESSAGE(DATA.READ_WALLET(COIN="LDUSDT", HEAD_ID=i))
+    '''
     # Test 2
+    '''
     DATA.WRITE_FAVORITELIST()
-
+    '''
     # Test 3
+    '''
     coin = ["BTC", "ETH", "BNB", "SOL", "XRP"]
     rightSymbol = "USDT"
     wallet = 1000
@@ -40,10 +40,12 @@ def ALGOTEST():
             TEST.RSI_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
             TEST.STOCHRSI_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
             TEST.GOLDENFIVE_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
-            if j < 4: CALCULATE.MESSAGE(".....NEXT PERIOD.....")
+            if j < 4: CALCULATE.SEND_MESSAGE(".....NEXT PERIOD.....")
         TEST.FIVEPERIOD_ALGORITHM(coin[i], rightSymbol, wallet)
-        if i < 4: CALCULATE.MESSAGE(".....NEXT COIN.....")
-    CALCULATE.MESSAGE(".....TEST END.....")
+        if i < 4: CALCULATE.SEND_MESSAGE(".....NEXT COIN.....")
+    '''
+    DATA.WRITE_TOTAL_BALANCE()
+    CALCULATE.SEND_MESSAGE(".....TEST END.....")
 
 
 ALGOTEST()

@@ -40,48 +40,23 @@ def FIND_USDT_BALANCE(COIN, BALANCE):
 def TOTAL_WALLET(TRANSACTION=None):
     df = DATA.READ_WALLET()
     coin = df["Coin"]
-    balance = df["Balance"]
+    USDTBalance = df["USDT_Balance"]
     totalUSDT = 0
     if TRANSACTION is None:
-        for i in range(len(coin)):
-            if coin[i][:2] == "LD": symbol = coin[i][2:]
-            else: symbol = coin[i]
-            if symbol == "USDT":
-                totalUSDT += balance[i]
-                continue
-            coinSymbol = symbol + "USDT"
-            closePrice = DATA.READ_CANDLE(coinSymbol, "1m", None, 1, 4)
-            USDTBalance = closePrice[0] * balance[i]
-            totalUSDT += USDTBalance
+        for i in range(len(coin)): totalUSDT += USDTBalance[i]
     elif TRANSACTION == 0:
         for i in range(len(coin)):
-            if coin[i][:2] == "LD": continue
-            if coin[i] == "USDT":
-                totalUSDT += balance[i]
-                continue
-            coinSymbol = coin[i] + "USDT"
-            closePrice = DATA.READ_CANDLE(coinSymbol, "1m", None, 1, 4)
-            USDTBalance = closePrice[0] * balance[i]
-            totalUSDT += USDTBalance
+            if coin[i][:2] != "LD": totalUSDT += balance[i]
     elif TRANSACTION == 1:
         for i in range(len(coin)):
-            if coin[i][:2] != "LD": continue
-            symbol = coin[i][2:]
-            if symbol == "USDT":
-                totalUSDT += balance[i]
-                continue
-            coinSymbol = symbol + "USDT"
-            closePrice = DATA.READ_CANDLE(coinSymbol, "1m", None, 1, 4)
-            USDTBalance = closePrice[0] * balance[i]
-            totalUSDT += USDTBalance
+            if coin[i][:2] == "LD": totalUSDT += balance[i]
     totalUSDT = round(totalUSDT, 2)
     return totalUSDT
-# Hesaplamaları DATA.WRITE_TOTAL_BALANCE içine gönder.
 # ----------------------------------------------------------------
 
 
 # Message Calculations
-def MESSAGE(BOT_MESSAGE):
+def SEND_MESSAGE(BOT_MESSAGE):
     print(BOT_MESSAGE)
     try:
         URL = (f"https://api.telegram.org/bot{API.TELEGRAM_BOT_TOKEN}"
@@ -89,6 +64,10 @@ def MESSAGE(BOT_MESSAGE):
                f"&parse_mode=Markdown&text={BOT_MESSAGE}")
         LIB.REQUEST.get(URL)
     except Exception as e: print(f"Error: {e}")
+
+
+def GET_MESSAGE():
+    return
 
 
 def TEST_MESSAGE(ALGORITHM_NAME, LEFT_SMYBOL, RIGHT_SYMBOL, CANDLE_PERIOD, WALLET,
@@ -104,7 +83,7 @@ def TEST_MESSAGE(ALGORITHM_NAME, LEFT_SMYBOL, RIGHT_SYMBOL, CANDLE_PERIOD, WALLE
     if TOTAL_COIN != 0: message += (f"Total Coin: {TOTAL_COIN} - {LEFT_SMYBOL}\n"
                                     f"Current Wallet: {coinWallet} - {RIGHT_SYMBOL}")
     else: message += f"Current Wallet: {WALLET} - {RIGHT_SYMBOL}"
-    MESSAGE(message)
+    SEND_MESSAGE(message)
 # ----------------------------------------------------------------
 
 
@@ -133,8 +112,8 @@ def GET_MINLIST():
     minAVGList = LIB.HEAP.nsmallest(5, df["AVG_Percent"])
     minCoinList = df.loc[df["AVG_Percent"].isin(minAVGList), ["Coin_Symbol", "AVG_Percent"]]
     df_minCoinList = minCoinList.sort_values("AVG_Percent")
-    MESSAGE(f"Alert List: \n{maxCoinList}")
-    MESSAGE(f"Favorite List: \n{minCoinList}")
+    SEND_MESSAGE(f"Alert List: \n{maxCoinList}")
+    SEND_MESSAGE(f"Favorite List: \n{minCoinList}")
     return df_minCoinList["Coin_Symbol"]
 
 

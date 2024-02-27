@@ -183,7 +183,7 @@ def FIVEPERIOD_ALGORITHM(LEFT_SMYBOL, RIGHT_SYMBOL, WALLET):
     coinSymbol = LEFT_SMYBOL + RIGHT_SYMBOL
     openTime = DATA.READ_CANDLE(coinSymbol, "15m", None, None, 0)
     closePrice = DATA.READ_CANDLE(coinSymbol, "15m", None, None, 4)
-    CALCULATE.MESSAGE("Full Period Mix Algorithm Calculating (AVG: 9 Minutes)...")
+    CALCULATE.SEND_MESSAGE("Full Period Mix Algorithm Calculating (AVG: 9 Minutes)...")
     for i in range(len(openTime)):
         print(f"{i+1}. Candle Reading")
         signal = INDICATOR.FIVEPERIOD_SIGNAL(coinSymbol, openTime[i])

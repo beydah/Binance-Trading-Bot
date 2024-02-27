@@ -23,7 +23,7 @@ def WRITE_CANDLE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None, CANDLE_LIMIT=None):
                                                        end_str=DATETIME, limit=CANDLE_LIMIT)
             break
         except Exception as e:
-            CALCULATE.MESSAGE(f"Error: {e}")
+            CALCULATE.SEND_MESSAGE(f"Error: {e}")
             LIB.SLEEP(15)
     if not LIB.OS.path.exists("../.data"): LIB.OS.makedirs("../.data")
     filePath = LIB.OS.path.join("../.data", f"{COIN_SYMBOL}_{CANDLE_PERIOD}.csv")
@@ -63,7 +63,7 @@ def WRITE_WALLET():
             balances = account["balances"]
             break
         except Exception as e:
-            CALCULATE.MESSAGE(f"Error: {e}")
+            CALCULATE.SEND_MESSAGE(f"Error: {e}")
             LIB.SLEEP(15)
     if not LIB.OS.path.exists("../.data"): LIB.OS.makedirs("../.data")
     filePath = LIB.OS.path.join("../.data", "WALLET.csv")
@@ -79,12 +79,31 @@ def WRITE_WALLET():
 def READ_WALLET(COIN=None, HEAD_ID=None):
     filePath = WRITE_WALLET()
     with open(filePath, "r", newline='') as csvFile:
-        headers = ["Coin", "Balance", "UDST_Balance"]
+        headers = ["Coin", "Balance", "USDT_Balance"]
         df = LIB.PD.read_csv(filePath, names=headers)
     if COIN is None and HEAD_ID is None: return df
-    elif COIN is not None and HEAD_ID is None: return df[df["Coin"] == COIN]  # .values[0]
+    elif COIN is not None and HEAD_ID is None: return df[df["Coin"] == COIN]
     elif COIN is None and HEAD_ID is not None: return df[headers[HEAD_ID]]
     return df[df["Coin"] == COIN][headers[HEAD_ID]]
+
+
+def WRITE_TOTAL_BALANCE():
+    TotalBalance = CALCULATE.TOTAL_WALLET()
+    if not LIB.OS.path.exists("../.data"): LIB.OS.makedirs("../.data")
+    filePath = LIB.OS.path.join("../.data", "TOTAL_BALANCE.csv")
+    PastBalances = []
+    with open(filePath, "r", newline='') as csvFile:
+        reader = LIB.CSV.reader(csvFile, delimiter=',')
+        for row in reader: PastBalances.append(float(row[0]))
+    with open(filePath, "a", newline='') as csvFile:
+        writer = LIB.CSV.writer(csvFile, delimiter=',')
+        try:
+            percentChange = (TotalBalance - PastBalances[-1]) / PastBalances[-1] * 100
+            avgTotalBalance = sum(PastBalances) / len(PastBalances)
+            avgPercentChange = (TotalBalance - avgTotalBalance) / avgTotalBalance * 100
+            writer.writerow([TotalBalance, round(percentChange, 2), round(avgPercentChange, 2)])
+        except Exception: writer.writerow([TotalBalance, 0, 0])
+    return filePath
 # ----------------------------------------------------------------
 
 
@@ -92,7 +111,7 @@ def READ_WALLET(COIN=None, HEAD_ID=None):
 def READ_COINLIST():
     filePath = LIB.OS.path.join("settings", "coinlist.txt")
     if not LIB.OS.path.exists(filePath):
-        CALCULATE.MESSAGE("ERROR: coinlist.txt not exists.")
+        CALCULATE.SEND_MESSAGE("ERROR: coinlist.txt not exists.")
         return None
     with open(filePath, "r+") as txtFile:
         coinList = []
@@ -112,7 +131,7 @@ def WRITE_CHANGELIST():
     with open(filePath, 'w', newline='') as csvFile:
         coinList = READ_COINLIST()
         writer = LIB.CSV.writer(csvFile, delimiter=',')
-        CALCULATE.MESSAGE(f"CHANGELIST File Updating (AVG: 3 Minutes)...")
+        CALCULATE.SEND_MESSAGE(f"CHANGELIST File Updating (AVG: 3 Minutes)...")
         # Git ve ACCOUNT içindenki balance değerinde olan tüm coinlerin isimlerini çek
         for coin in coinList:
             # Çektiğin coin isimlerinde şuanki coin ismini oku
@@ -122,7 +141,7 @@ def WRITE_CHANGELIST():
             for j in range(5): day[j] = CALCULATE.GET_CHANGE_PERCENT(coinSymbol, changeListDays[j])
             avg = round((day[0] + day[1] + day[2] + day[3] + day[4]) / 5, 4)
             writer.writerow([coin, day[0], day[1], day[2], day[3], day[4], avg])
-        CALCULATE.MESSAGE("CHANGELIST File Updated.")
+        CALCULATE.SEND_MESSAGE("CHANGELIST File Updated.")
     return filePath
 
 
@@ -139,9 +158,9 @@ def WRITE_FAVORITELIST():
     if not LIB.OS.path.exists("../.data"): LIB.OS.makedirs("../.data")
     filePath = LIB.OS.path.join("../.data", f"FAVORITELIST.csv")
     with open(filePath, 'w', newline='') as csvFile:
-        CALCULATE.MESSAGE(f"FAVORITELIST File Updating...")
+        CALCULATE.SEND_MESSAGE(f"FAVORITELIST File Updating...")
         minimumCoinList = CALCULATE.GET_MINLIST()
         writer = LIB.CSV.writer(csvFile, delimiter=',')
         for coin in minimumCoinList: writer.writerow([coin])
-        CALCULATE.MESSAGE(f"FAVORITELIST File Updated.")
+        CALCULATE.SEND_MESSAGE(f"FAVORITELIST File Updated.")
 # ----------------------------------------------------------------
