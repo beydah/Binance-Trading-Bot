@@ -8,33 +8,43 @@ from src.engine import calculator as CALCULATE
 from src.engine import indicator as INDICATOR
 from src.engine import algotest as TEST
 from src.engine import algotrade as TRADE
-from src.business import business as BUSINESS
 # ----------------------------------------------------------------
 
 
 # Test Area
-def ALGOTEST_MIX():
+def ALGOTEST():
+    # Test 1
+    CALCULATE.MESSAGE(".....TEST START.....")
+    test = DATA.READ_WALLET()
+    CALCULATE.MESSAGE(test)
+    test = DATA.READ_WALLET(COIN="LDUSDT")
+    CALCULATE.MESSAGE(test)
+    for i in range(2):
+        if i == 0:
+            for j in range(3): CALCULATE.MESSAGE(DATA.READ_WALLET(HEAD_ID=j))
+        else:
+            for j in range(3): CALCULATE.MESSAGE(DATA.READ_WALLET(COIN="LDUSDT", HEAD_ID=j))
+
+    # Test 2
+    DATA.WRITE_FAVORITELIST()
+
+    # Test 3
     coin = ["BTC", "ETH", "BNB", "SOL", "XRP"]
     rightSymbol = "USDT"
     wallet = 1000
-    CALCULATE.SEND_MESSAGE(".....TEST START.....")
-    # DATA.WRITE_FAVORITELIST()
     for i in range(5):
         for j in range(5):
-            TEST.GOLDENCROSS_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
             TEST.DCA_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
             TEST.EMA_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
+            TEST.GOLDENCROSS_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
             TEST.RSI_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
             TEST.STOCHRSI_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
-            TEST.MIX_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
-            if j < 4: CALCULATE.SEND_MESSAGE(".....NEXT PERIOD.....")
-        '''
-        '''
-        TEST.PERIOD_ALGORITHM(coin[i], rightSymbol, wallet)
-        if i < 4: CALCULATE.SEND_MESSAGE(".....NEXT COIN.....")
-    CALCULATE.SEND_MESSAGE(".....TEST END.....")
+            TEST.GOLDENFIVE_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
+            if j < 4: CALCULATE.MESSAGE(".....NEXT PERIOD.....")
+        TEST.FIVEPERIOD_ALGORITHM(coin[i], rightSymbol, wallet)
+        if i < 4: CALCULATE.MESSAGE(".....NEXT COIN.....")
+    CALCULATE.MESSAGE(".....TEST END.....")
 
 
-ALGOTEST_MIX()
-print(CALCULATE.TOTAL_WALLET())
+ALGOTEST()
 # ----------------------------------------------------------------

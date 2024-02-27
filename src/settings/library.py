@@ -11,5 +11,6 @@ import csv as CSV
 import heapq as HEAP
 from datetime import datetime as DATETIME
 from datetime import timedelta as TIMEDELTA
+from time import time as TIME
 from time import sleep as SLEEP
 # ----------------------------------------------------------------
