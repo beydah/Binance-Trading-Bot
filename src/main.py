@@ -1,32 +1,33 @@
 # ----------------------------------------------------------------
 # Added Links
-from src.settings import api as API
-from src.settings import library as LIB
-from src.settings import settings as DEF
-from src.engine import dataops as DATA
+from src.dataops import candle as CANDLE
+from src.dataops import wallet as WALLET
+from src.dataops import list as LIST
+from src.dataops import message as MESSAGE
+
+from src.engine import algotest as TEST
 from src.engine import calculator as CALCULATE
 from src.engine import indicator as INDICATOR
-from src.engine import algotest as TEST
-from src.engine import algotrade as TRADE
+
+from src.settings import settings as DEF
+from src.settings import api as API
 # ----------------------------------------------------------------
 
 
 # Test Area
 def ALGOTEST():
-    CALCULATE.SEND_MESSAGE(".....TEST START.....")
+    MESSAGE.SEND(".....TEST START.....")
     # Test 1
     '''
-    test = DATA.READ_WALLET()
-    CALCULATE.SEND_MESSAGE(test)
-    test = DATA.READ_WALLET(COIN="LDUSDT")
-    CALCULATE.SEND_MESSAGE(test)
-    for i in range(3): CALCULATE.SEND_MESSAGE(DATA.READ_WALLET(HEAD_ID=i))
-    for i in range(3): CALCULATE.SEND_MESSAGE(DATA.READ_WALLET(COIN="LDUSDT", HEAD_ID=i))
+    test = WALLET.READ()
+    MESSAGE.SEND(test)
+    test = WALLET.READ(COIN="LDUSDT")
+    MESSAGE.SEND(test)
+    for i in range(3): MESSAGE.SEND(WALLET.READ(HEAD_ID=i))
+    for i in range(3): MESSAGE.SEND(WALLET.READ(COIN="LDUSDT", HEAD_ID=i))
     '''
     # Test 2
-    '''
-    DATA.WRITE_FAVORITELIST()
-    '''
+    # LIST.WRITE_FAVORITE()
     # Test 3
     '''
     coin = ["BTC", "ETH", "BNB", "SOL", "XRP"]
@@ -40,12 +41,13 @@ def ALGOTEST():
             TEST.RSI_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
             TEST.STOCHRSI_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
             TEST.GOLDENFIVE_ALGORITHM(coin[i], rightSymbol, DEF.CANDLE_PEROIDS[j], wallet)
-            if j < 4: CALCULATE.SEND_MESSAGE(".....NEXT PERIOD.....")
+            if j < 4: MESSAGE.SEND(".....NEXT PERIOD.....")
         TEST.FIVEPERIOD_ALGORITHM(coin[i], rightSymbol, wallet)
-        if i < 4: CALCULATE.SEND_MESSAGE(".....NEXT COIN.....")
+        if i < 4: MESSAGE.SEND(".....NEXT COIN.....")
     '''
-    DATA.WRITE_TOTAL_BALANCE()
-    CALCULATE.SEND_MESSAGE(".....TEST END.....")
+    print(WALLET.READ())
+    WALLET.WRITE_TOTAL_BALANCE()
+    MESSAGE.SEND(".....TEST END.....")
 
 
 ALGOTEST()
