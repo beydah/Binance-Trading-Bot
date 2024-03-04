@@ -5,9 +5,10 @@ from src.dataops import list as LIST
 from src.dataops import message as MESSAGE
 from src.dataops import wallet as WALLET
 
-from src.engine import algotest as TEST
+from src.engine import algorithm as ALGORITHM
 from src.engine import indicator as INDICATOR
 from src.engine import signal as SIGNAL
+from src.engine import analysis as ANALYSIS
 
 from src.settings import settings as DEF
 from src.settings import library as LIB
@@ -33,6 +34,14 @@ def TEST_SELL(WEALTH_QUANTITY, WEALTH_PRICE):
 # ----------------------------------------------------------------
 
 
+def FIND_COIN(COIN):
+    fullCoinList = LIST.READ_FULLCOIN()
+    for fullCoin in fullCoinList["Coin"]:
+        if fullCoin == COIN: return True
+    MESSAGE.SEND(f"Error: {COIN} coin not found.")
+    return False
+
+
 # Wallet Calculations
 def FIND_USDT_BALANCE(COIN, BALANCE):
     if COIN[:2] == "LD": coin = COIN[2:]
@@ -56,17 +65,17 @@ def TOTAL_WALLET(TRANSACTION=None):
         for i in range(len(coin)): totalUSDT += USDTBalance[i]
     elif TRANSACTION == 0:
         for i in range(len(coin)):
-            if coin[i][:2] != "LD": totalUSDT += balance[i]
+            if coin[i][:2] != "LD": totalUSDT += USDTBalance[i]
     elif TRANSACTION == 1:
         for i in range(len(coin)):
-            if coin[i][:2] == "LD": totalUSDT += balance[i]
+            if coin[i][:2] == "LD": totalUSDT += USDTBalance[i]
     totalUSDT = round(totalUSDT, 2)
     return totalUSDT
 # ----------------------------------------------------------------
 
 
 # Get Calculations
-def GET_CHANGE_PERCENT(COIN_SYMBOL, DAYS):
+def GET_CHANGE_COIN(COIN_SYMBOL, DAYS):
     past = LIB.TIMEDELTA(days=DAYS)
     today = LIB.DATETIME.now()
     past_date = today - past
@@ -83,15 +92,17 @@ def GET_CHANGE_PERCENT(COIN_SYMBOL, DAYS):
     return percentChange
 
 
+def GET_CHANGE_WALLET(NOW_BALANCES, PAST_BALANCES, DAYS):
+    try: percentChanges = round((NOW_BALANCES - PAST_BALANCES[-DAYS]) / PAST_BALANCES[-DAYS] * 100, 2)
+    except Exception: percentChanges = 0
+    return percentChanges
+
+
 def GET_MINLIST():
     df = LIST.READ_CHANGE()
-    maxAVGList = LIB.HEAP.nlargest(5, df["AVG_Percent"])
-    maxCoinList = df.loc[df["AVG_Percent"].isin(maxAVGList), ["Coin_Symbol", "AVG_Percent"]]
     minAVGList = LIB.HEAP.nsmallest(5, df["AVG_Percent"])
     minCoinList = df.loc[df["AVG_Percent"].isin(minAVGList), ["Coin_Symbol", "AVG_Percent"]]
     df_minCoinList = minCoinList.sort_values("AVG_Percent")
-    MESSAGE.SEND(f"Alert List: \n{maxCoinList}")
-    MESSAGE.SEND(f"Favorite List: \n{minCoinList}")
     return df_minCoinList["Coin_Symbol"]
 
 

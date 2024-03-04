@@ -1,6 +1,8 @@
 # ----------------------------------------------------------------
 # Added Libraries
 from binance import Client as BINANCE
+from telebot import TeleBot as BOT
+import re as RE
 # import telebot as BOT
 # from telebot import types as TYPES
 import requests as REQUEST

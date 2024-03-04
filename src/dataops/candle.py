@@ -4,23 +4,21 @@ from src.dataops import list as LIST
 from src.dataops import message as MESSAGE
 from src.dataops import wallet as WALLET
 
-from src.engine import algotest as TEST
+from src.engine import analysis as ANALYSIS
+from src.engine import algorithm as ALGORITHM
 from src.engine import calculator as CALCULATE
 from src.engine import indicator as INDICATOR
 from src.engine import signal as SIGNAL
 
-from src.settings import settings as DEF
-from src.settings import library as LIB
 from src.settings import api as API
+from src.settings import library as LIB
+from src.settings import settings as DEF
 # ----------------------------------------------------------------
 
 
 # Candle Operations
 def WRITE(COIN_SYMBOL, CANDLE_PERIOD, DATETIME=None, CANDLE_LIMIT=None):
     if CANDLE_LIMIT is None: CANDLE_LIMIT = DEF.CANDLE_LIMIT
-    if DATETIME is None:
-        DATETIME = LIB.DATETIME.now()
-        DATETIME = DATETIME.strftime("%Y-%m-%d %H:%M:%S")
     while True:
         try:
             binance = LIB.BINANCE(API.BINANCE_KEY, API.BINANCE_SECRET)
