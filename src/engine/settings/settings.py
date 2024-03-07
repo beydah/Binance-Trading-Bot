@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------
-# Indicator SettingS
+# Indicator Settings
 MA_LENGTHS = [25, 50, 200]
 RSI_LENGTH = 15
 STOCHRSI_RSI_LENGTH = 5
