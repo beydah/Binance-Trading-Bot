@@ -33,19 +33,25 @@ def GET_BINANCE():
 
 def GET_CANDLE(COIN, CANDLE_PERIOD, DATETIME=None, CANDLE_LIMIT=None):
     if CANDLE_LIMIT is None: CANDLE_LIMIT = DEF.CANDLE_LIMIT
-    return GET_BINANCE().get_historical_klines(symbol=COIN+"USDT", interval=CANDLE_PERIOD,
+    binance = GET_BINANCE()
+    return binance.get_historical_klines(symbol=COIN+"USDT", interval=CANDLE_PERIOD,
                                                end_str=DATETIME, limit=CANDLE_LIMIT)
 
 
-def GET_ACCOUNT(): return GET_BINANCE().get_account(timestamp=LIB.TIME.time() - 1000)
+def GET_ACCOUNT():
+    binance = GET_BINANCE()
+    return binance.get_account(timestamp=LIB.TIME.time() - 1000)
 
 
-def GET_BALANCES(): return GET_ACCOUNT()["balances"]
+def GET_BALANCES():
+    account = GET_ACCOUNT()
+    return account["balances"]
 
 
 def GET_FULLCOIN():
     df = LIB.PD.DataFrame(columns=["Coin"])
-    for balance in GET_BALANCES(): df = df._append({"Coin": balance["asset"]}, ignore_index=True)
+    balances = GET_BALANCES()
+    for balance in balances: df = df._append({"Coin": balance["asset"]}, ignore_index=True)
     return df
 # ----------------------------------------------------------------
 

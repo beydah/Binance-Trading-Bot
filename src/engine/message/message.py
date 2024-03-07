@@ -43,9 +43,12 @@ def SEND(BOT_MESSAGE):
     except Exception: print(f"Error Message Send: {Exception}")
 
 
-def SEND_TEST(COIN, CANDLE_PERIOD, WALLET, TOTAL_COIN, TOTAL_INVESMENT, BUY_NUM, SELL_NUM, CLOSE_PRICE):
+def SEND_TEST(COIN, CANDLE_PERIOD, WALLET, TOTAL_COIN, TOTAL_INVESMENT,
+              BUY_NUM, SELL_NUM, CLOSE_PRICE, FIRST_TRANSACTION_DATE, LAST_TRANSACTION_DATE):
     message = (f"Symbol: {COIN}USDT - Period: {CANDLE_PERIOD}\n"
-               f"Total Transactions: {BUY_NUM + SELL_NUM}\n"
+               f"Total Transactions: {BUY_NUM + SELL_NUM}\n\n"
+               f"First Transaction Date: {FIRST_TRANSACTION_DATE}\n"
+               f"Last Transaction Date: {LAST_TRANSACTION_DATE}\n\n"
                f"Total Investment: {TOTAL_INVESMENT} - USDT\n")
     if round(TOTAL_COIN, 4) > 0:
         message += (f"Total Coin: {round(TOTAL_COIN, 4)} - {COIN}\n"

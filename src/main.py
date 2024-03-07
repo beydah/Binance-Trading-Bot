@@ -43,10 +43,10 @@ def TEST():
     print(DATA.FIND_COIN("BTC"))
     print(DATA.FIND_MINLIST())
     print(DATA.FIND_MAXLIST())
+    TRADE.TEST("USDC")
     """
-    TRADE.TEST("BTC")
-    '''
     BOT.START()
+    '''
     '''
     MESSAGE.SEND(".....TEST END.....")
 

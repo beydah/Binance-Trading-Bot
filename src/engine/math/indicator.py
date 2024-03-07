@@ -76,7 +76,7 @@ def RSI_SIGNAL(RSI_NUM):
 
 
 def GOLDENFIVE_SIGNAL(GOLDEN_NUMS):
-    if GOLDEN_NUMS[0] > 0: return 1
-    if GOLDEN_NUMS[1] > 0: return -1
+    if GOLDEN_NUMS[0] > 2: return 1
+    if GOLDEN_NUMS[1] > 2: return -1
     return 0
 # ----------------------------------------------------------------
