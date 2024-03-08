@@ -78,6 +78,13 @@ def WALLET_CHANGES():
 def COINLIST(COINS):
     with open(LIB.OS.path.join("engine/settings", "coinlist.txt"), 'w', newline='') as txtFile: txtFile.write(COINS)
     READ.COINLIST()
+    MESSAGE.SEND("I wrote the existing coins.")
+
+
+def INSERT_COINLIST(COIN): pass  # MESSAGE.SEND("I insert the existing coins.")
+
+
+def DROP_COINLIST(COIN): pass  # MESSAGE.SEND("I drop the existing coins.")
 
 
 def COINLIST_CHANGES():

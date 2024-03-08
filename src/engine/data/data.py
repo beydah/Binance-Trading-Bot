@@ -56,6 +56,9 @@ def GET_FULLCOIN():
 # ----------------------------------------------------------------
 
 
+def GET_WALLET(): return READ.WALLET()  # MESSAGE.SEND(READ.WALLET())
+
+
 def GET_USDT_BALANCE(COIN, BALANCE): return CALCULATE.USDT_BALANCE(COIN, BALANCE)
 
 
