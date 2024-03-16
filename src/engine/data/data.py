@@ -5,42 +5,43 @@ from src.engine.data import write as WRITE
 from src.engine.data import read as READ
 # MATH
 from src.engine.math import calculator as CALCULATE
-from src.engine.math import indicator as INDICATOR
-from src.engine.math import trade as TRADE
 # MESSAGE
-from src.engine.message import bot as BOT
 from src.engine.message import message as MESSAGE
-from src.engine.message import transactions as TRANSACTIONS
 # SETTING
 from src.engine.settings import api as API
 from src.engine.settings import library as LIB
 from src.engine.settings import settings as DEF
-# THREAD
-from src.engine.thread import timer as TIMER
-from src.engine.thread import debugger as DEBUGGER
-from src.engine.thread import processor as PROCESSOR
-# ----------------------------------------------------------------
-# Global Object
-CLIENT = LIB.BINANCE(API.BINANCE_KEY, API.BINANCE_SECRET)
 # ----------------------------------------------------------------
 
 
+# Binance Data Get Functions
 def GET_BINANCE():
     while True:
-        try: return CLIENT
-        except Exception: MESSAGE.SEND_ERROR(f"Data Get Binance: {Exception}")
+        try: return API.CLIENT
+        except Exception as e: MESSAGE.SEND_ERROR(f"GET_BINANCE: {e}")
 
 
-def GET_CANDLE(COIN, CANDLE_PERIOD, DATETIME=None, CANDLE_LIMIT=None):
-    if CANDLE_LIMIT is None: CANDLE_LIMIT = DEF.CANDLE_LIMIT
+def GET_CANDLE(SYMBOL, PERIOD=None, DATETIME=None, LIMIT=None):
     binance = GET_BINANCE()
-    return binance.get_historical_klines(symbol=COIN+"USDT", interval=CANDLE_PERIOD,
-                                               end_str=DATETIME, limit=CANDLE_LIMIT)
+    if PERIOD is None: PERIOD = DEF.CANDLE_PERIODS[0]
+    if LIMIT is None: LIMIT = DEF.CANDLE_LIMIT
+    return binance.get_historical_klines(symbol=SYMBOL, interval=PERIOD, end_str=DATETIME, limit=LIMIT)
+
+
+def GET_SYMBOLINFO(FILTER, COIN):
+    binance = GET_BINANCE()
+    symbolInfo = binance.get_symbol_info(COIN+"USDT")
+    if FILTER == "MIN QTY": return symbolInfo["filters"][1]["minQty"]
+    elif FILTER == "MAX QTY": return symbolInfo["filters"][1]["maxQty"]
+    else: return None
 
 
 def GET_ACCOUNT():
     binance = GET_BINANCE()
-    return binance.get_account(timestamp=LIB.TIME.time() - 1000)
+    clientTimeGap = 0
+    while True:
+        try: return binance.get_account(timestamp=LIB.TIME.time()-clientTimeGap)
+        except Exception as e: clientTimeGap = FIND_TIME_GAP(clientTimeGap, e)
 
 
 def GET_BALANCES():
@@ -49,68 +50,85 @@ def GET_BALANCES():
 
 
 def GET_FULLCOIN():
-    df = LIB.PD.DataFrame(columns=["Coin"])
     balances = GET_BALANCES()
+    df = LIB.PD.DataFrame(columns=["Coin"])
     for balance in balances: df = df._append({"Coin": balance["asset"]}, ignore_index=True)
     return df
 # ----------------------------------------------------------------
 
 
-def GET_WALLET(): return READ.WALLET()  # MESSAGE.SEND(READ.WALLET())
-
-
-def GET_USDT_BALANCE(COIN, BALANCE): return CALCULATE.USDT_BALANCE(COIN, BALANCE)
-
-
-def GET_TOTAL_WALLET(TRANSACTION_ID): return CALCULATE.TOTAL_WALLET(TRANSACTION_ID)
-
-
-def GET_WALLET_CHANGE(NOW_BALANCE, PAST_BALANCES, DAYS):
-    try: percentChanges = round((NOW_BALANCE - PAST_BALANCES[-DAYS]) / PAST_BALANCES[-DAYS] * 100, 2)
+# Other Data Get Functions
+def FIND_WALLET_CHANGE(NOW_BALANCE, PAST_BALANCES, DAYS):
+    try: percentChanges = (NOW_BALANCE - PAST_BALANCES[-DAYS]) / PAST_BALANCES[-DAYS] * 100
     except Exception: percentChanges = 0
-    return percentChanges
+    return round(percentChanges, 2)
 
 
-def GET_COIN_CHANGE(COIN, DAYS): return CALCULATE.COIN_CHANGE(COIN, DAYS)
+def FIND_COIN_QUANTITY(USDT_QUANTITY, COIN_PRICE): return float(round(USDT_QUANTITY / COIN_PRICE, 9))
+
+
+def FIND_USDT_QUANTITY(COIN_QUANTITY, COIN_PRICE): return float(round(COIN_QUANTITY * COIN_PRICE, 9))
+
+
+def GET_WALLET():
+    dfWallet = READ.WALLET()
+    wallet = dfWallet.values.reshape(dfWallet.shape[0], dfWallet.shape[1], 1)
+    message = ""
+    if wallet is not None:
+        for i in range(wallet.shape[0]):
+            coinInfo = [wallet[i][0], round(float(wallet[i][1]), 8), round(float(wallet[i][2]), 2)]
+            message += f"{coinInfo[0]} {coinInfo[1]} - {coinInfo[2]} USD\n"
+    MESSAGE.SEND(message)
 
 
 def GET_COINLIST_INFO():
-    WRITE.COINLIST_CHANGES()
-    maxCoinList = FIND_MAXLIST()
-    minCoinList = FIND_MINLIST()
-    MESSAGE.SEND(f"Alert List:\n{maxCoinList}\nFavorite List:\n{minCoinList}\n")
+    try:
+        maxCoinList = FIND_MAXLIST()
+        minCoinList = FIND_MINLIST()
+        MESSAGE.SEND(f"Alert List:\n{maxCoinList}\nFavorite List:\n{minCoinList}\n")
+    except Exception as e: MESSAGE.SEND_ERROR(f"GET_COINLIST_INFO: {e}")
 
 
-def GET_COIN_INFO(COIN): return CALCULATE.COIN_INFO(COIN)
+def GET_OPEN_ORDER():
+    client = GET_BINANCE()
+    openOrders = client.get_open_orders()
+    if openOrders is None: return None
+    orders = []
+    for order in openOrders:
+        coin = order["symbol"].removesuffix("USDT")
+        quantity = float(order["origQty"])
+        closePrice = READ.CANDLE(COIN=coin, PERIOD="1m", LIMIT=1, HEAD_ID=4)
+        USDTQuantity = float(FIND_USDT_QUANTITY(quantity, closePrice[0]))
+        orders.append({"Coin": coin, "Quantity": quantity, "USDT_Quantity": USDTQuantity})
+    return LIB.PD.DataFrame(orders)
 
 
-def GET_WALLET_INFO(): return CALCULATE.WALLET_INFO()
-
-
-def GET_COIN_FROM_FAVORITELIST(COIN_ID):
-    filePath = LIB.OS.path.join("../.data", f"FAVORITELIST.csv")
-    if not LIB.OS.path.exists(filePath): WRITE.FAVORITELIST()
-    with open(filePath, "r", newline=""): df = LIB.PD.read_csv(filePath, names=["Coin_Symbol"])
-    favoriteCoins = df["Coin_Symbol"].tolist()
-    return favoriteCoins[COIN_ID]
 # ----------------------------------------------------------------
 
 
-def FIND_COIN(COIN): return CALCULATE.SEARCH_COIN(COIN)
+# Data Find Functions
+def FIND_TIME_GAP(CLIENT_TIME_GAP, ERROR):
+    if CLIENT_TIME_GAP < 5000: return CLIENT_TIME_GAP + 1000
+    MESSAGE.SEND_ERROR(f"GET_ACCOUNT: {ERROR}")
+    return 0
 
 
 def FIND_MINLIST():
-    df = READ.COINLIST_CHANGES()
-    minAVGList = LIB.HEAP.nsmallest(5, df["AVG_Percent"])
-    minCoinList = df.loc[df["AVG_Percent"].isin(minAVGList), ["Coin_Symbol", "AVG_Percent"]]
-    df_minCoinList = minCoinList.sort_values("AVG_Percent")
-    return df_minCoinList["Coin_Symbol"]
+    try:
+        df = READ.COINLIST_CHANGES()
+        minAVGList = LIB.HEAP.nsmallest(5, df["AVG_Percent"])
+        minCoinList = df.loc[df["AVG_Percent"].isin(minAVGList), ["Coin_Symbol", "AVG_Percent"]]
+        df_minCoinList = minCoinList.sort_values("AVG_Percent")
+        return df_minCoinList["Coin_Symbol"]
+    except Exception as e: MESSAGE.SEND_ERROR(f"FIND_MINLIST: {e}")
 
 
 def FIND_MAXLIST():
-    df = READ.COINLIST_CHANGES()
-    maxAVGList = LIB.HEAP.nlargest(5, df["AVG_Percent"])
-    maxCoinList = df.loc[df["AVG_Percent"].isin(maxAVGList), ["Coin_Symbol", "AVG_Percent"]]
-    df_maxCoinList = maxCoinList.sort_values("AVG_Percent")
-    return df_maxCoinList["Coin_Symbol"]
+    try:
+        df = READ.COINLIST_CHANGES()
+        maxAVGList = LIB.HEAP.nlargest(5, df["AVG_Percent"])
+        maxCoinList = df.loc[df["AVG_Percent"].isin(maxAVGList), ["Coin_Symbol", "AVG_Percent"]]
+        df_maxCoinList = maxCoinList.sort_values("AVG_Percent")
+        return df_maxCoinList["Coin_Symbol"]
+    except Exception as e: MESSAGE.SEND_ERROR(f"FIND_MAXLIST: {e}")
 # ----------------------------------------------------------------
