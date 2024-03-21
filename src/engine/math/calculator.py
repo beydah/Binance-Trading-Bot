@@ -6,7 +6,7 @@ from src.engine.data import read as READ
 # MATH
 from src.engine.math import indicator as INDICATOR
 # MESSAGE
-from src.engine.message import message as MESSAGE
+from src.engine.message import message as MSG
 # SETTING
 from src.engine.settings import library as LIB
 from src.engine.settings import settings as DEF
@@ -14,163 +14,170 @@ from src.engine.settings import settings as DEF
 
 
 # Order Calculations
-def MARKET_BUY(COIN, QUANTITY):
-    virtualQuantity = VIRTUAL_QUANTITY("Market Buy", COIN, QUANTITY)
-    if virtualQuantity is None: return False
+def MARKET_BUY(Coin, Quantity):
+    virtual_quantity = VIRTUAL_QUANTITY("Market Buy", Coin, LIB.DECIMAL(Quantity))
+    if virtual_quantity is None: return False
     client = DATA.GET_BINANCE()
-    client.order_market(symbol=COIN+"USDT", side="BUY", quantity=virtualQuantity)
-    MESSAGE.SEND(f"{virtualQuantity} {COIN} - BUY")
-    return True
-
-
-def MARKET_SELL(COIN, QUANTITY):
-    virtualQuantity = VIRTUAL_QUANTITY("Market Sell", COIN, QUANTITY)
-    if virtualQuantity is None: return False
-    client = DATA.GET_BINANCE()
-    client.order_market(symbol=COIN+"USDT", side="SELL", quantity=virtualQuantity)
-    MESSAGE.SEND(f"{virtualQuantity} {COIN} - SELL")
-    return True
-
-
-def CREATE_STOP_LOSS(COIN):
-    balance = READ.WALLET(COIN, 1)
-    virtualQuantity = VIRTUAL_QUANTITY("Create Stop Loss", COIN, float(balance.item()))
-    if virtualQuantity is None: return False
-    client = DATA.GET_BINANCE()
-    price = READ.CANDLE(COIN=COIN, PERIOD="1m", LIMIT=1, HEAD_ID=4)
-    priceStep = len(str(price[0]).split(".")[-1])
-    stopPrice = round(float(price[0]) * DEF.STOP_LOSS_RATE, priceStep)
-    client.create_order(symbol=COIN+"USDT", type="STOP_LOSS_LIMIT", side="SELL",
-                        price=stopPrice, stopPrice=stopPrice, quantity=virtualQuantity, timeInForce="GTC")
-    MESSAGE.SEND(f"{COIN} BUY PRICE: {float(price[0])}\n{COIN} STOP LOSS PRICE - {float(stopPrice)}\n")
-    return True
-
-
-def DELETE_STOP_LOSS(COIN):
-    client = DATA.GET_BINANCE()
-    openOrders = client.get_open_orders(symbol=COIN + "USDT")
-    if openOrders is None: return False
-    stopLossOrder = None
-    for order in openOrders:
-        if order['type'] == 'STOP_LOSS_LIMIT' and order['side'] == 'SELL':
-            stopLossOrder = order
+    while True:
+        try:
+            client.order_market(symbol=Coin+"USDT", side="BUY", quantity=virtual_quantity)
             break
-    if stopLossOrder is None: return False
-    client.cancel_order(symbol=COIN + "USDT", orderId=stopLossOrder['orderId'])
+        except Exception as e: MSG.SEND_ERROR(f"MARKET_BUY: {e}")
+    MSG.SEND(f"{virtual_quantity} {Coin} - Buy")
     return True
 
 
-def TEST_BUY(USDT, COIN_PRICE): return DEF.BINANCE_COMISSION_RATE * DATA.FIND_COIN_QUANTITY(USDT, COIN_PRICE)
+def MARKET_SELL(Coin, Quantity):
+    virtual_quantity = VIRTUAL_QUANTITY("Market Sell", Coin, LIB.DECIMAL(Quantity))
+    if virtual_quantity is None: return False
+    client = DATA.GET_BINANCE()
+    while True:
+        try:
+            client.order_market(symbol=Coin+"USDT", side="SELL", quantity=virtual_quantity)
+            break
+        except Exception as e: MSG.SEND_ERROR(f"MARKET_SELL: {e}")
+    MSG.SEND(f"{virtual_quantity} {Coin} - Sell")
+    return True
 
 
-def TEST_SELL(COIN, COIN_PRICE): return DEF.BINANCE_COMISSION_RATE * DATA.FIND_USDT_QUANTITY(COIN, COIN_PRICE)
+def CREATE_STOP_LOSS(Coin):
+    balance = READ.WALLET(Coin, 1)
+    virtual_quantity = VIRTUAL_QUANTITY("Create Stop Loss", Coin, LIB.DECIMAL(balance.item()))
+    if virtual_quantity is None: return False
+    client = DATA.GET_BINANCE()
+    while True:
+        try:
+            price = READ.CANDLE(Coin=Coin, Period="1m", Limit=1, Head_ID=4)
+            price_step = len(str(price[0]).split(".")[-1])
+            stop_price = round(float(price[0]) * DEF.Stop_Loss_Rate, price_step)
+            client.create_order(symbol=Coin+"USDT", type="STOP_LOSS_LIMIT", side="SELL",
+                                price=stop_price, stopPrice=stop_price, quantity=virtual_quantity, timeInForce="GTC")
+            break
+        except Exception as e: MSG.SEND_ERROR(f"CREATE_STOP_LOSS: {e}")
+    MSG.SEND(f"{Coin} Buy Price: {float(price[0])}\n{Coin} Stop Loss Price - {float(stop_price)}\n")
+    return True
+
+
+def DELETE_STOP_LOSS(Coin):
+    client = DATA.GET_BINANCE()
+    while True:
+        try:
+            open_orders = client.get_open_orders(symbol=Coin+"USDT")
+            if open_orders is None: return False
+            stop_loss_order = None
+            for order in open_orders:
+                if order['type'] == 'STOP_LOSS_LIMIT' and order['side'] == 'SELL':
+                    stop_loss_order = order
+                    break
+            if stop_loss_order is None: return False
+            client.cancel_order(symbol=Coin+"USDT", orderId=stop_loss_order['orderId'])
+            break
+        except Exception as e: MSG.SEND_ERROR(f"DELETE_STOP_LOSS: {e}")
+    return True
+
+
+def TEST_BUY(USDT, Coin_Price): return DEF.Binance_Comission_Rate * DATA.FIND_COIN_QUANTITY(USDT, Coin_Price)
+
+
+def TEST_SELL(Coin, Coin_Price): return DEF.Binance_Comission_Rate * DATA.FIND_USDT_QUANTITY(Coin, Coin_Price)
 # ----------------------------------------------------------------
 
 
-def VIRTUAL_QUANTITY(TRANSACTION, COIN, QUANTITY):
-    minQty = DATA.GET_SYMBOLINFO("MIN QTY", COIN)
-    maxQty = DATA.GET_SYMBOLINFO("MAX QTY", COIN)
-    if float(minQty) > QUANTITY:
-        MESSAGE.SEND(f"I can't {TRANSACTION} {COIN}.\nBeacuse Min Quantity: {float(minQty)}\n"
-                     f"My Request Quantity: {float(QUANTITY)}\n")
+def VIRTUAL_QUANTITY(Transaction, Coin, Quantity):
+    qty = [DATA.GET_SYMBOLINFO(Coin, Info="minQty"), DATA.GET_SYMBOLINFO(Coin, Info="maxQty")]
+    if LIB.DECIMAL(qty[0]) > Quantity:
+        MSG.SEND(f"I can't {Transaction} {Coin}\nBeacuse Min Quantity: {float(qty[0])}\n"
+                 f"My Request Quantity: {float(Quantity)}\n")
         return None
-    if float(maxQty) < QUANTITY: QUANTITY = float(maxQty)
-    minStep = 0
-    for char in minQty:
-        if char == "0": minStep += 1
+    if LIB.DECIMAL(qty[1]) < Quantity: Quantity = LIB.DECIMAL(qty[1])
+    min_step = 0
+    for char in qty[0]:
+        if char == "0": min_step += 1
         elif char == "1": break
-    strQuantity = str(float(QUANTITY))+("0"*8)
-    leftStr, rightStr = strQuantity.split(".")
-    rightStr = rightStr[:minStep]
-    if rightStr == "": return leftStr
-    return leftStr+"."+rightStr
+    if Quantity == int(Quantity): str_quantity = f"{int(Quantity)}."+("0" * 8)
+    else: str_quantity = str(LIB.DECIMAL(Quantity))
+    left_str, right_str = str_quantity.split(".")
+    right_str = right_str[:min_step]
+    if right_str == "": return left_str
+    return f"{left_str}.{right_str}"
 # ----------------------------------------------------------------
 
 
-def USDT_BALANCE(COIN, BALANCE):
-    if COIN[:2] == "LD": coin = COIN[2:]
-    else: coin = COIN
+def USDT_BALANCE(Coin, Balance):
+    if Coin[:2] == "LD": coin = Coin[2:]
+    else: coin = Coin
     if coin != "USDT":
-        closePrice = READ.CANDLE(COIN=coin, PERIOD="1m", LIMIT=1, HEAD_ID=4)
-        BALANCE = DATA.FIND_USDT_QUANTITY(BALANCE, closePrice[0])
-    if BALANCE > DEF.MIN_USDT_BALANCE: return float(round(BALANCE, 3))
-    return 0.000
+        price = READ.CANDLE(Coin=coin, Period="1m", Limit=1, Head_ID=4)
+        Balance = DATA.FIND_USDT_QUANTITY(Balance, price[0])
+    if Balance > DEF.MIN_USDT_Balance: return float(round(Balance, 3))
+    return 0
 
 
-def COIN_BALANCE(COIN, BALANCE):
-    if COIN[:2] == "LD": coin = COIN[2:]
-    else: coin = COIN
-    if coin != "USDT":
-        closePrice = READ.CANDLE(COIN=coin, PERIOD="1m", LIMIT=1, HEAD_ID=4)
-        BALANCE = FIND_COIN_QUANTITY(BALANCE, closePrice[0])
-        if BALANCE > 0: return float(round(BALANCE, 9))
-
-
-def TOTAL_WALLET(TRANSACTION_ID):
+def TOTAL_WALLET(Transaction_ID):
     wallet = READ.WALLET()
-    totalUSDT = 0
-    if TRANSACTION_ID == 0:
-        for i in range(len(wallet["Coin"])): totalUSDT += wallet["USDT_Balance"][i]
-    elif TRANSACTION_ID == 1:
+    total_usdt = 0
+    if Transaction_ID == 0:
+        for i in range(len(wallet["Coin"])): total_usdt += wallet["USDT Balance"][i]
+    elif Transaction_ID == 1:
         for i in range(len(wallet["Coin"])):
-            if wallet["Coin"][i][:2] != "LD": totalUSDT += wallet["USDT_Balance"][i]
+            if wallet["Coin"][i][:2] != "LD": total_usdt += wallet["USDT Balance"][i]
     else:
         for i in range(len(wallet["Coin"])):
-            if wallet["Coin"][i][:2] == "LD": totalUSDT += wallet["USDT_Balance"][i]
-    return round(totalUSDT, 2)
+            if wallet["Coin"][i][:2] == "LD": total_usdt += wallet["USDT Balance"][i]
+    return round(total_usdt, 2)
 
 
-def COIN_CHANGE(COIN, DAYS):
-    past = LIB.DATE.timedelta(days=DAYS)
+def COIN_CHANGE(Coin, Days):
     today = LIB.DATE.datetime.now()
-    pastDay = today - past
+    past_day = today - LIB.DATE.timedelta(days=Days)
     today = today.strftime("%Y-%m-%d %H:%M:%S")
-    pastDay = pastDay.strftime("%Y-%m-%d %H:%M:%S")
+    past_day = past_day.strftime("%Y-%m-%d %H:%M:%S")
     try:
-        pastPrice = READ.CANDLE(COIN=COIN, PERIOD="1m", DATETIME=pastDay, LIMIT=1, HEAD_ID=4)
-        currentPrice = READ.CANDLE(COIN=COIN, PERIOD="1m", DATETIME=today, LIMIT=1, HEAD_ID=4)
-        priceDifference = currentPrice[0] - pastPrice[0]
-        percentChange = (priceDifference / pastPrice[0]) * 100
-    except Exception: percentChange = 0
-    return float(round(percentChange, 2))
+        past_price = READ.CANDLE(Coin=Coin, Period="1m", Datetime=past_day, Limit=1, Head_ID=4)
+        current_price = READ.CANDLE(Coin=Coin, Period="1m", Datetime=today, Limit=1, Head_ID=4)
+        return round(((current_price[0] - past_price[0]) / past_price[0]) * 100, 2)
+    except Exception: return 0
 
 
-def FIND_COIN(COIN):
-    fullCoinList = DATA.GET_FULLCOIN()
-    for fullCoin in fullCoinList["Coin"]:
-        if fullCoin != COIN: continue
-        if COIN != "USDT": return True
+def FIND_COIN(Coin):
+    full_coinlist = DATA.GET_FULLCOIN()
+    for full_coin in full_coinlist["Coin"]:
+        if full_coin != Coin: continue
+        if Coin != "USDT": return True
         break
-    MESSAGE.SEND(f"{COIN} coin not available.")
+    MSG.SEND(f"{Coin} coin not available.")
     return False
+# ----------------------------------------------------------------
 
 
-def COIN_INFO(COIN):
-    if FIND_COIN(COIN):
-        closePrice = READ.CANDLE(COIN=COIN, PERIOD="30m", LIMIT=205, HEAD_ID=4)
-        sma25 = INDICATOR.SMA(DEF.MA_LENGTHS[0], closePrice)
-        ema25 = INDICATOR.EMA(DEF.MA_LENGTHS[0], closePrice)
-        sma50 = INDICATOR.SMA(DEF.MA_LENGTHS[1], closePrice)
-        sma200 = INDICATOR.SMA(DEF.MA_LENGTHS[2], closePrice)
-        rsi = INDICATOR.RSI(closePrice)
-        stochRSI = INDICATOR.STOCHRSI(closePrice)
-        indicatorSignals = [0] * 5
+def COIN_INFO(Coin):
+    if FIND_COIN(Coin):
+        price = READ.CANDLE(Coin=Coin, Period=DEF.Candle_Periods[0], Limit=205, Head_ID=4)
+        if len(price) < 205:
+            MSG.SEND(f"I cannot calculate\nBecause {Coin} is still very new")
+            return None
+        sma25 = INDICATOR.SMA(DEF.MA_Lengths[0], price)
+        ema25 = INDICATOR.EMA(DEF.MA_Lengths[0], price)
+        sma50 = INDICATOR.SMA(DEF.MA_Lengths[1], price)
+        sma200 = INDICATOR.SMA(DEF.MA_Lengths[2], price)
+        rsi = INDICATOR.RSI(price)
+        stochRSI = INDICATOR.STOCHRSI(price)
+        indicator_signal = [0] * 5
         signals = ["None"] * 5
-        old = len(closePrice) - 3
-        last = len(closePrice) - 2
-        if not any(LIB.PD.isna([stochRSI[old], rsi[old], sma200[old], sma50[old], sma25[old]])):
-            indicatorSignals[0] = INDICATOR.DCA_SIGNAL(closePrice[old], closePrice[last], sma25[old], sma25[last])
-            indicatorSignals[1] = INDICATOR.DCA_SIGNAL(closePrice[old], closePrice[last], ema25[old], ema25[last])
-            indicatorSignals[2] = INDICATOR.GOLDENCROSS_SIGNAL(sma50[old], sma50[last], sma200[old], sma200[last])
-            indicatorSignals[3] = INDICATOR.RSI_SIGNAL(rsi[last])
-            indicatorSignals[4] = INDICATOR.RSI_SIGNAL(stochRSI[last])
-            for i in range(5):
-                if indicatorSignals[i] == 1: signals[i] = "BUY"
-                elif indicatorSignals[i] == -1: signals[i] = "SELL"
-        MESSAGE.SEND(f"Coin: {COIN}\nPrice: {float(closePrice[len(closePrice) - 1])}\n"
-                     f"SMA: {signals[0]}\nEMA: {signals[1]}\n"
-                     f"Golden Cross: {signals[2]}\nRSI: {signals[3]}\n"
-                     f"StochRSI: {signals[4]}\n")
+        last = len(price) - 2
+        if not any(LIB.PD.isna([stochRSI[last-1], rsi[last-1], sma200[last-1], sma50[last-1], sma25[last-1]])):
+            indicator_signal[0] = INDICATOR.DCA_SIGNAL(price[last-1], price[last], sma25[last-1], sma25[last])
+            indicator_signal[1] = INDICATOR.DCA_SIGNAL(price[last-1], price[last], ema25[last-1], ema25[last])
+            indicator_signal[2] = INDICATOR.GOLDENCROSS_SIGNAL(sma50[last-1], sma50[last], sma200[last-1], sma200[last])
+            indicator_signal[3] = INDICATOR.RSI_SIGNAL(rsi[last])
+            indicator_signal[4] = INDICATOR.RSI_SIGNAL(stochRSI[last])
+            for i in range(len(indicator_signal)):
+                if indicator_signal[i] == 1: signals[i] = "BUY"
+                elif indicator_signal[i] == -1: signals[i] = "SELL"
+        MSG.SEND(f"Coin: {Coin}\nPrice: {float(price[len(price) - 1])}\n"
+                 f"SMA: {signals[0]}\nEMA: {signals[1]}\n"
+                 f"Golden Cross: {signals[2]}\nRSI: {signals[3]}\n"
+                 f"StochRSI: {signals[4]}\n")
 
 
 def WALLET_INFO():
@@ -178,11 +185,12 @@ def WALLET_INFO():
     for i in range(len(wallet)): wallet[i] = TOTAL_WALLET(i)
     message = f"Total Wallet: {wallet[0]}\nSpot Total Wallet: {wallet[1]}\nEarn Total Wallet: {wallet[2]}\n\n"
     percents = [0] * 6
-    changeInfo = READ.WALLET_CHANGES()
-    percentsHeaders = ["1D_Percent", "3D_Percent", "7D_Percent", "15D_Percent", "30D_Percent", "AVG_Percent"]
+    percents_headers = [
+        "1 Day Percent", "3 Day Percent", "7 Day Percent", "15 Day Percent", "30 Day Percent", "AVG Percent"]
+    change_info = READ.WALLET_CHANGES()
     try:
-        for i in range(len(percentsHeaders)): percents[i] = changeInfo[percentsHeaders[i]].values[0]
-        for i in range(len(percentsHeaders)): message += f"{percentsHeaders[i]}: {percents[i]}\n"
-        MESSAGE.SEND(message)
-    except Exception as e: MESSAGE.SEND_ERROR(f"WALLET_INFO: {e}")
+        for i in range(len(percents_headers)): percents[i] = change_info[percents_headers[i]].values[0]
+        for i in range(len(percents_headers)): message += f"{percents_headers[i]}: {percents[i]}\n"
+        MSG.SEND(message)
+    except Exception as e: MSG.SEND_ERROR(f"WALLET_INFO: {e}")
 # ----------------------------------------------------------------

@@ -9,9 +9,9 @@ from src.engine.settings import library as LIB
 # ----------------------------------------------------------------
 
 
-def GET(messages):
-    for message in messages:
-        if str(message.from_user.id) == API.TELEGRAM_USER_ID:
+def GET(Messages):
+    for message in Messages:
+        if str(message.from_user.id) == API.Telegram_User_ID:
             print(f"{message.from_user.first_name}:\n{message.text}\n")
             prompt = ""
             for char in message.text.upper():
@@ -20,32 +20,32 @@ def GET(messages):
 # ----------------------------------------------------------------
 
 
-def SEND(BOT_MESSAGE):
-    print(f"Bot:\n{BOT_MESSAGE}\n")
+def SEND(Bot_Message):
+    print(f"Bot:\n{Bot_Message}\n")
     try:
-        LIB.REQUEST.get(f"https://api.telegram.org/bot{API.TELEGRAM_BOT_TOKEN}"
-                        f"/sendMessage?chat_id={API.TELEGRAM_USER_ID}"
-                        f"&parse_mode=Markdown&text={BOT_MESSAGE}")
-    except Exception as e: print(f"Error Message Send: {e}")
+        LIB.REQUEST.get(f"https://api.telegram.org/bot{API.Telegram_Bot_Token}"
+                        f"/sendMessage?chat_id={API.Telegram_User_ID}"
+                        f"&parse_mode=Markdown&text={Bot_Message}")
+    except Exception: pass
 
 
-def SEND_TEST(COIN, CANDLE_PERIOD, FIRST_TRANSACTION_DATE, LAST_TRANSACTION_DATE, BUY_NUM, SELL_NUM, ENTRY_WALLET,
-              MONTHLY_ADDITION, TOTAL_INVESMENT, TOTAL_COIN, CLOSE_PRICE, WALLET):
-    message = (f"Symbol: {COIN}USDT - Period: {CANDLE_PERIOD}\n\n"
-               f"First Transaction Date: {FIRST_TRANSACTION_DATE}\n"
-               f"Last Transaction Date: {LAST_TRANSACTION_DATE}\n"
-               f"Total Transactions: {BUY_NUM + SELL_NUM}\n\n"
-               f"Entry Wallet: {ENTRY_WALLET} USDT\n"
-               f"Monthly Addition: {MONTHLY_ADDITION} USDT\n"
-               f"Total Invesment: {TOTAL_INVESMENT} USDT\n\n")
-    if TOTAL_COIN > 0:
-        message += (f"Total Coin: {round(TOTAL_COIN, 4)} {COIN}\n"
-                    f"Current Wallet: {round((round(TOTAL_COIN, 4) * CLOSE_PRICE), 2)} USDT\n")
-    else: message += f"Current Wallet: {round(WALLET, 2)} USDT\n"
+def SEND_TEST(Coin, Period, First_Transaction_Date, Last_Transaction_Date, Buy_Num, Sell_Num, Entry_Wallet,
+              Monthly_Addition, Total_Invesment, Total_Coin, Price, Wallet):
+    message = (f"Symbol: {Coin}USDT - Period: {Period}\n\n"
+               f"First Transaction Date: {First_Transaction_Date}\n"
+               f"Last Transaction Date: {Last_Transaction_Date}\n"
+               f"Total Transactions: {Buy_Num+Sell_Num}\n\n"
+               f"Entry Wallet: {Entry_Wallet} USDT\n"
+               f"Monthly Addition: {Monthly_Addition} USDT\n"
+               f"Total Invesment: {Total_Invesment} USDT\n\n")
+    if Total_Coin > 0:
+        message += (f"Total Coin: {round(Total_Coin, 4)} {Coin}\n"
+                    f"Current Wallet: {round((round(Total_Coin, 4) * Price), 2)} USDT\n")
+    else: message += f"Current Wallet: {round(Wallet, 2)} USDT\n"
     SEND(message)
 
 
-def SEND_ERROR(ERROR):
-    SEND(f"Error {ERROR}")
+def SEND_ERROR(Error):
+    SEND(f"Error {Error}")
     LIB.TIME.sleep(15)
 # ----------------------------------------------------------------

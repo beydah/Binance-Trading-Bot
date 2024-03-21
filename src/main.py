@@ -1,24 +1,32 @@
 # ----------------------------------------------------------------
 # Added Links
 # DATA
-from src.engine.data import data as DATA
 from src.engine.data import write as WRITE
-from src.engine.data import read as READ
 # MATH
-from src.engine.math import calculator as CALCULATE
-from src.engine.math import indicator as INDICATOR
 from src.engine.math import trade as TRADE
 # MESSAGE
 from src.engine.message import bot as BOT
-from src.engine.message import message as MESSAGE
-from src.engine.message import transactions as TRANSACTIONS
-# SETTING
+from src.engine.message import message as MSG
+# SETTINGS
 from src.engine.settings import api as API
-from src.engine.settings import library as LIB
 from src.engine.settings import settings as DEF
+from src.engine.settings import library as LIB
 # ----------------------------------------------------------------
-MESSAGE.SEND(".....START.....")
-if any([API.TELEGRAM_BOT_TOKEN, API.TELEGRAM_USER_ID, API.BINANCE_KEY]): BOT.START()
-else: MESSAGE.SEND_ERROR("API Keys are missing!")
-MESSAGE.SEND(".....END.....")
+
+
+def MAIN():
+    if any([API.Telegram_Bot_Token, API.Telegram_User_ID, API.Binance_Key, API.Binance_Secret]):
+        MSG.SEND(DEF.Install_Message)
+        processor = LIB.THREAD(target=BOT.PROCESSOR)
+        processor.start()
+        TRADE.BEYZA_STOP()
+        WRITE.COINLIST_CHANGES()
+        WRITE.FAVORITELIST()
+        bot = LIB.THREAD(target=BOT.START)
+        bot.start()
+        MSG.SEND(DEF.Start_Message)
+    else: MSG.SEND_ERROR("API Keys are Missing!")
+
+
+MAIN()
 # ----------------------------------------------------------------

@@ -3,45 +3,55 @@
 # DATA
 from src.engine.data import write as WRITE
 from src.engine.data import read as READ
-# MATH
-from src.engine.math import calculator as CALCULATE
 # MESSAGE
-from src.engine.message import message as MESSAGE
+from src.engine.message import message as MSG
 # SETTING
 from src.engine.settings import api as API
 from src.engine.settings import library as LIB
 from src.engine.settings import settings as DEF
+# ----------------------------------------------------------------
+Folder_Path = "../.data"
 # ----------------------------------------------------------------
 
 
 # Binance Data Get Functions
 def GET_BINANCE():
     while True:
-        try: return API.CLIENT
-        except Exception as e: MESSAGE.SEND_ERROR(f"GET_BINANCE: {e}")
+        try: return API.Client
+        except Exception as e: MSG.SEND_ERROR(f"GET_BINANCE: {e}")
 
 
-def GET_CANDLE(SYMBOL, PERIOD=None, DATETIME=None, LIMIT=None):
+def GET_CANDLE(Coin, Period=None, Datetime=None, Limit=None):
     binance = GET_BINANCE()
-    if PERIOD is None: PERIOD = DEF.CANDLE_PERIODS[0]
-    if LIMIT is None: LIMIT = DEF.CANDLE_LIMIT
-    return binance.get_historical_klines(symbol=SYMBOL, interval=PERIOD, end_str=DATETIME, limit=LIMIT)
+    if Period is None: Period = DEF.Candle_Periods[0]
+    if Limit is None: Limit = DEF.Candle_Limit
+    while True:
+        try: return binance.get_historical_klines(symbol=Coin+"USDT", interval=Period, end_str=Datetime, limit=Limit)
+        except Exception as e: MSG.SEND_ERROR(f"GET_CANDLE: {e}")
 
 
-def GET_SYMBOLINFO(FILTER, COIN):
+def GET_SYMBOLINFO(Coin, Info):
     binance = GET_BINANCE()
-    symbolInfo = binance.get_symbol_info(COIN+"USDT")
-    if FILTER == "MIN QTY": return symbolInfo["filters"][1]["minQty"]
-    elif FILTER == "MAX QTY": return symbolInfo["filters"][1]["maxQty"]
-    else: return None
+    while True:
+        try:
+            symbol_info = binance.get_symbol_info(Coin+"USDT")
+            return symbol_info["filters"][1][Info]
+        except Exception as e: MSG.SEND_ERROR(f"GET_SYMBOLINFO: {e}")
+
+
+def GET_OPEN_ORDERS():
+    client = GET_BINANCE()
+    while True:
+        try: return client.get_open_orders()
+        except Exception as e: MSG.SEND_ERROR(f"GET_OPEN_ORDER: {e}")
 
 
 def GET_ACCOUNT():
     binance = GET_BINANCE()
-    clientTimeGap = 0
+    time_gap = 0
     while True:
-        try: return binance.get_account(timestamp=LIB.TIME.time()-clientTimeGap)
-        except Exception as e: clientTimeGap = FIND_TIME_GAP(clientTimeGap, e)
+        try: return binance.get_account(timestamp=LIB.TIME.time()-time_gap)
+        except Exception as e: time_gap = FIND_TIME_GAP(time_gap, e)
 
 
 def GET_BALANCES():
@@ -57,78 +67,66 @@ def GET_FULLCOIN():
 # ----------------------------------------------------------------
 
 
-# Other Data Get Functions
-def FIND_WALLET_CHANGE(NOW_BALANCE, PAST_BALANCES, DAYS):
-    try: percentChanges = (NOW_BALANCE - PAST_BALANCES[-DAYS]) / PAST_BALANCES[-DAYS] * 100
-    except Exception: percentChanges = 0
-    return round(percentChanges, 2)
-
-
-def FIND_COIN_QUANTITY(USDT_QUANTITY, COIN_PRICE): return float(round(USDT_QUANTITY / COIN_PRICE, 9))
-
-
-def FIND_USDT_QUANTITY(COIN_QUANTITY, COIN_PRICE): return float(round(COIN_QUANTITY * COIN_PRICE, 9))
-
-
+# Data Get Functions
 def GET_WALLET():
-    dfWallet = READ.WALLET()
-    wallet = dfWallet.values.reshape(dfWallet.shape[0], dfWallet.shape[1], 1)
+    df = READ.WALLET()
+    wallet = df.values.reshape(df.shape[0], df.shape[1], 1)
+    if wallet is not None: GET_WALLET_MESSAGE(wallet)
+    else: MSG.SEND("Wallet Not Found")
+
+
+def GET_WALLET_MESSAGE(Wallet):
     message = ""
-    if wallet is not None:
-        for i in range(wallet.shape[0]):
-            coinInfo = [wallet[i][0], round(float(wallet[i][1]), 8), round(float(wallet[i][2]), 2)]
-            message += f"{coinInfo[0]} {coinInfo[1]} - {coinInfo[2]} USD\n"
-    MESSAGE.SEND(message)
+    for i in range(Wallet.shape[0]):
+        coin_info = [Wallet[i][0], round(float(Wallet[i][1]), 8), round(float(Wallet[i][2]), 2)]
+        message += f"{coin_info[0]} {coin_info[1]} - {coin_info[2]} USD"
+    MSG.SEND(message)
 
 
 def GET_COINLIST_INFO():
     try:
-        maxCoinList = FIND_MAXLIST()
-        minCoinList = FIND_MINLIST()
-        MESSAGE.SEND(f"Alert List:\n{maxCoinList}\nFavorite List:\n{minCoinList}\n")
-    except Exception as e: MESSAGE.SEND_ERROR(f"GET_COINLIST_INFO: {e}")
-
-
-def GET_OPEN_ORDER():
-    client = GET_BINANCE()
-    openOrders = client.get_open_orders()
-    if openOrders is None: return None
-    orders = []
-    for order in openOrders:
-        coin = order["symbol"].removesuffix("USDT")
-        quantity = float(order["origQty"])
-        closePrice = READ.CANDLE(COIN=coin, PERIOD="1m", LIMIT=1, HEAD_ID=4)
-        USDTQuantity = float(FIND_USDT_QUANTITY(quantity, closePrice[0]))
-        orders.append({"Coin": coin, "Quantity": quantity, "USDT_Quantity": USDTQuantity})
-    return LIB.PD.DataFrame(orders)
-
-
+        WRITE.COINLIST_CHANGES()
+        WRITE.FAVORITELIST()
+        analysis_list = [FIND_MAXLIST(), FIND_MINLIST()]
+        MSG.SEND(f"Alert List:\n{analysis_list[0]}\nFavorite List:\n{analysis_list[1]}")
+    except Exception as e: MSG.SEND_ERROR(f"GET_COINLIST_INFO: {e}")
 # ----------------------------------------------------------------
 
 
 # Data Find Functions
-def FIND_TIME_GAP(CLIENT_TIME_GAP, ERROR):
-    if CLIENT_TIME_GAP < 5000: return CLIENT_TIME_GAP + 1000
-    MESSAGE.SEND_ERROR(f"GET_ACCOUNT: {ERROR}")
+def FIND_TIME_GAP(Time_Gap, Error):
+    if Time_Gap < 5000: return Time_Gap + 1000
+    MSG.SEND_ERROR(f"GET_ACCOUNT: {Error}")
     return 0
+
+
+def FIND_WALLET_CHANGE(Now_Balance, Past_Balances, Day):
+    try: return round((Now_Balance - Past_Balances[-Day]) / Past_Balances[-Day] * 100, 2)
+    except Exception: return 0
+
+
+def FIND_COIN_QUANTITY(USDT_Quantity, Coin_Price): return float(round(USDT_Quantity / Coin_Price, 9))
+
+
+def FIND_USDT_QUANTITY(Coin_Quantity, Coin_Price): return float(round(Coin_Quantity * Coin_Price, 9))
 
 
 def FIND_MINLIST():
     try:
         df = READ.COINLIST_CHANGES()
-        minAVGList = LIB.HEAP.nsmallest(5, df["AVG_Percent"])
-        minCoinList = df.loc[df["AVG_Percent"].isin(minAVGList), ["Coin_Symbol", "AVG_Percent"]]
-        df_minCoinList = minCoinList.sort_values("AVG_Percent")
-        return df_minCoinList["Coin_Symbol"]
-    except Exception as e: MESSAGE.SEND_ERROR(f"FIND_MINLIST: {e}")
+        min_avglist = LIB.HEAP.nsmallest(5, df["AVG Percent"])
+        min_coinlist = df.loc[df["AVG Percent"].isin(min_avglist), ["Coin", "AVG Percent"]]
+        minlist = min_coinlist.sort_values("AVG Percent")
+        return minlist["Coin"]
+    except Exception as e: MSG.SEND_ERROR(f"FIND_MINLIST: {e}")
 
 
 def FIND_MAXLIST():
     try:
         df = READ.COINLIST_CHANGES()
-        maxAVGList = LIB.HEAP.nlargest(5, df["AVG_Percent"])
-        maxCoinList = df.loc[df["AVG_Percent"].isin(maxAVGList), ["Coin_Symbol", "AVG_Percent"]]
-        df_maxCoinList = maxCoinList.sort_values("AVG_Percent")
-        return df_maxCoinList["Coin_Symbol"]
-    except Exception as e: MESSAGE.SEND_ERROR(f"FIND_MAXLIST: {e}")
+        max_avglist = LIB.HEAP.nlargest(5, df["AVG Percent"])
+        max_coinlist = df.loc[df["AVG Percent"].isin(max_avglist), ["Coin", "AVG Percent"]]
+        maxlist = max_coinlist.sort_values("AVG Percent")
+        return maxlist["Coin"]
+    except Exception as e: MSG.SEND_ERROR(f"FIND_MAXLIST: {e}")
 # ----------------------------------------------------------------
