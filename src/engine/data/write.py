@@ -7,6 +7,7 @@ from src.engine.data import read as READ
 from src.engine.math import calculator as CALCULATE
 # MESSAGE
 from src.engine.message import message as MSG
+from src.engine.message import transactions as T
 # SETTING
 from src.engine.settings import library as LIB
 from src.engine.settings import settings as DEF
@@ -19,8 +20,8 @@ def PATH(File_Name):
 # ----------------------------------------------------------------
 
 
-def CANDLE(Coin, Period=None, Datetime=None, Limit=None):
-    candles = DATA.GET_CANDLE(Coin, Period, Datetime, Limit)
+def CANDLE(Coin, Period=None, Limit=None, Datetime=None):
+    candles = DATA.GET_CANDLE(Coin=Coin, Period=Period, Limit=Limit, Datetime=Datetime)
     path = PATH(f"{Coin}_{Period}.csv")
     with open(path, "w", newline='') as file:
         writer = LIB.CSV.writer(file, delimiter=',')
@@ -40,17 +41,19 @@ def WALLET():
         writer = LIB.CSV.writer(file, delimiter=',')
         for balance in balances:
             if float(balance["free"]) <= 0: continue
-            usdt_balance = CALCULATE.USDT_BALANCE(balance["asset"], float(balance["free"]))
+            usdt_balance = CALCULATE.USDT_BALANCE(Coin=balance["asset"], Balance=float(balance["free"]))
             if usdt_balance <= DEF.Ignored_USDT_Balance: continue
             writer.writerow([balance["asset"], float(round(float(balance["free"]), 9)), float(round(usdt_balance, 3))])
         if orders is not None:
             for index, order in orders.iterrows():
-                writer.writerow(
-                    [order["Coin"], float(round(float(order["Balance"]), 9)), float(round(order["USDT Balance"], 3))])
+                headers = [DEF.Wallet_Headers[0], DEF.Wallet_Headers[1], DEF.Wallet_Headers[2]]
+                coin_info = [order[headers[0]], float(round(order[headers[1]], 9)), float(round(order[headers[2]], 3))]
+                writer.writerow([coin_info[0], coin_info[1], coin_info[2]])
     return path
 
 
 def WALLET_CHANGES():
+    T.Transaction[T.Wallet] = True
     path = PATH("WALLET_CHANGES.csv")
     past_balances = []
     try:
@@ -62,43 +65,51 @@ def WALLET_CHANGES():
     with open(path, "a", newline='') as file:
         writer = LIB.CSV.writer(file, delimiter=',')
         total_usdt = CALCULATE.TOTAL_WALLET(0)
-        percent_changes = [0] * len(DEF.Wallet_Change_Days)
+        changes = [0] * len(DEF.Wallet_Change_Days)
         for i in range(len(DEF.Wallet_Change_Days)):
-            percent_changes[i] = DATA.FIND_WALLET_CHANGE(total_usdt, past_balances, DEF.Wallet_Change_Days[i])
-        avg = round(sum(percent_changes) / len(percent_changes), 2)
-        writer.writerow([total_usdt, percent_changes[0], percent_changes[1], percent_changes[2],
-                         percent_changes[3], percent_changes[4], avg])
+            day = DEF.Wallet_Change_Days[i]
+            changes[i] = DATA.FIND_WALLET_CHANGE(Now_Balance=total_usdt, Past_Balances=past_balances, Day=day)
+        avg = round(sum(changes) / len(changes), 2)
+        writer.writerow([total_usdt, changes[0], changes[1], changes[2], changes[3], changes[4], avg])
+    T.Transaction[T.Wallet] = False
 # ----------------------------------------------------------------
 
 
 def COINLIST(Coins):
-    with open(LIB.OS.path.join("engine/settings", "coinlist.txt"), 'w', newline='') as file: file.write(Coins)
+    T.Transaction[T.Coinlist] = True
+    with open(LIB.OS.path.join(DATA.Folder_Path, "COINLIST.txt"), 'w', newline='') as file: file.write(Coins)
     READ.OPTIMIZE_COINLIST()
     MSG.SEND("I Wrote Existing Coins")
     COINLIST_CHANGES()
     FAVORITELIST()
+    T.Transaction[T.Coinlist] = False
 
 
 def INSERT_COINLIST(Coin):
-    if not CALCULATE.FIND_COIN(Coin): return
-    with open(LIB.OS.path.join("engine/settings", "coinlist.txt"), 'a', newline='') as file: file.write(Coin+"\n")
-    MSG.SEND(f"I Insert {Coin}")
+    T.Transaction[T.Coinlist] = True
+    if CALCULATE.FIND_COIN(Coin):
+        with open(LIB.OS.path.join(DATA.Folder_Path, "COINLIST.txt"), 'a', newline='') as file: file.write(Coin+"\n")
+        MSG.SEND(f"I Insert {Coin}")
+    T.Transaction[T.Coinlist] = False
 
 
 def DROP_COINLIST(Coin):
+    T.Transaction[T.Coinlist] = True
     coinlist = READ.COINLIST()
     if coinlist is None: MSG.SEND("I Don't Have Any Coin List\nPlease First 'Write Coin List'")
     else:
         dropped = False
-        with open(LIB.OS.path.join("engine/settings", "coinlist.txt"), 'w', newline='') as file:
+        with open(LIB.OS.path.join(DATA.Folder_Path, "COINLIST.txt"), 'w', newline='') as file:
             for coin in coinlist:
                 if coin != Coin: file.write(coin+"\n")
                 else: dropped = True
         if dropped: MSG.SEND(f"I Drop {Coin}")
         else: MSG.SEND(f"I Couldn't Find {Coin}")
+    T.Transaction[T.Coinlist] = False
 
 
 def COINLIST_CHANGES():
+    T.Transaction[T.Coinlist] = True
     path = PATH("COINLIST_CHANGES.csv")
     coinlist = READ.COINLIST()
     if coinlist is None: MSG.SEND("I Don't Have Any Coin List\nPlease First 'Write Coin List'")
@@ -107,12 +118,12 @@ def COINLIST_CHANGES():
         with open(path, 'w', newline='') as file:
             writer = LIB.CSV.writer(file, delimiter=',')
             for coin in coinlist:
-                percent_changes = [0] * len(DEF.Coin_Change_Days)
-                for i in range(5): percent_changes[i] = CALCULATE.COIN_CHANGE(coin, DEF.Coin_Change_Days[i])
-                avg = round(sum(percent_changes) / len(percent_changes), 2)
-                writer.writerow([coin, percent_changes[0], percent_changes[1], percent_changes[2],
-                                 percent_changes[3], percent_changes[4], avg])
+                changes = [0] * len(DEF.Coin_Change_Days)
+                for i in range(5): changes[i] = CALCULATE.COIN_CHANGE(coin, DEF.Coin_Change_Days[i])
+                avg = round(sum(changes) / len(changes), 2)
+                writer.writerow([coin, changes[0], changes[1], changes[2], changes[3], changes[4], avg])
         MSG.SEND("Coinlist Changes Calculated.")
+    T.Transaction[T.Coinlist] = False
 # ----------------------------------------------------------------
 
 
@@ -120,7 +131,7 @@ def FAVORITELIST():
     path = PATH("FAVORITELIST.csv")
     with open(path, 'w', newline='') as file:
         writer = LIB.CSV.writer(file, delimiter=',')
-        minlist = DATA.FIND_MINLIST()
+        minlist = CALCULATE.MINLIST()
         for coin in minlist: writer.writerow([coin])
 
 
@@ -129,7 +140,6 @@ def DROP_FAVORITELIST(Coin):
     coinlist = READ.FAVORITELIST()
     with open(path, 'w', newline='') as file:
         writer = LIB.CSV.writer(file, delimiter=',')
-        for coin in coinlist["Coin"]:
+        for coin in coinlist[DEF.Wallet_Headers[0]]:
             if coin != Coin: writer.writerow([coin])
-            else: MSG.SEND(f"I Drop {Coin} in Favorite List")
 # ----------------------------------------------------------------

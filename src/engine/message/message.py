@@ -40,7 +40,7 @@ def SEND_TEST(Coin, Period, First_Transaction_Date, Last_Transaction_Date, Buy_N
                f"Total Invesment: {Total_Invesment} USDT\n\n")
     if Total_Coin > 0:
         message += (f"Total Coin: {round(Total_Coin, 4)} {Coin}\n"
-                    f"Current Wallet: {round((round(Total_Coin, 4) * Price), 2)} USDT\n")
+                    f"Current Wallet: {round(Total_Coin * Price, 2)} USDT\n")
     else: message += f"Current Wallet: {round(Wallet, 2)} USDT\n"
     SEND(message)
 

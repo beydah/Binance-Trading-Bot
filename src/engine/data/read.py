@@ -7,14 +7,15 @@ from src.engine.data import write as WRITE
 from src.engine.math import calculator as CALCULATE
 # MESSAGE
 from src.engine.message import message as MSG
+from src.engine.message import transactions as T
 # SETTING
 from src.engine.settings import library as LIB
 from src.engine.settings import settings as DEF
 # ----------------------------------------------------------------
 
 
-def CANDLE(Coin, Period=None, Datetime=None, Limit=None, Head_ID=None):
-    path = WRITE.CANDLE(Coin, Period, Datetime, Limit)
+def CANDLE(Coin, Period=None, Limit=None, Datetime=None, Head_ID=None):
+    path = WRITE.CANDLE(Coin=Coin, Period=Period, Limit=Limit, Datetime=Datetime)
     with open(path, "r", newline=''): df = LIB.PD.read_csv(path, names=DEF.Candle_Headers)
     LIB.OS.remove(path)
     if Head_ID is None: return df
@@ -26,9 +27,9 @@ def WALLET(Coin=None, Head_ID=None):
     path = WRITE.WALLET()
     with open(path, "r", newline=''): df = LIB.PD.read_csv(path, names=DEF.Wallet_Headers)
     if Coin is None and Head_ID is None: return df
-    elif Coin is not None and Head_ID is None: return df[df["Coin"] == Coin]
+    elif Coin is not None and Head_ID is None: return df[df[DEF.Wallet_Headers[0]] == Coin]
     elif Coin is None and Head_ID is not None: return df[DEF.Wallet_Headers[Head_ID]]
-    return df[df["Coin"] == Coin][DEF.Wallet_Headers[Head_ID]]
+    return df[df[DEF.Wallet_Headers[0]] == Coin][DEF.Wallet_Headers[Head_ID]]
 
 
 def WALLET_CHANGES(Head_ID=None):
@@ -50,9 +51,9 @@ def OPEN_ORDER():
         coin = order["symbol"].removesuffix("USDT")
         quantity = float(order["origQty"])
         close_price = CANDLE(Coin=coin, Period="1m", Limit=1, Head_ID=4)
-        usdt_quantity = float(DATA.FIND_USDT_QUANTITY(quantity, close_price[0]))
-        orders.append(
-            {DEF.Wallet_Headers[0]: coin, DEF.Wallet_Headers[1]: quantity, DEF.Wallet_Headers[2]: usdt_quantity})
+        usdt_quantity = float(DATA.FIND_USDT_QUANTITY(Coin_Quantity=quantity, Coin_Price=close_price[0]))
+        headers = [DEF.Wallet_Headers[0], DEF.Wallet_Headers[1], DEF.Wallet_Headers[2]]
+        orders.append({headers[0]: coin, headers[1]: quantity, headers[2]: usdt_quantity})
     return LIB.PD.DataFrame(orders)
 # ----------------------------------------------------------------
 
@@ -61,15 +62,16 @@ def COINLIST():
     try:
         OPTIMIZE_COINLIST()
         coinlist = []
-        with open(LIB.OS.path.join("engine/settings", "coinlist.txt"), "r+") as file:
+        with open(LIB.OS.path.join(DATA.Folder_Path, "COINLIST.txt"), "r+") as file:
             for line in file: coinlist.append(line.strip())
         return coinlist
     except Exception as e: MSG.SEND_ERROR(f"COINLIST: {e}")
 
 
 def OPTIMIZE_COINLIST():
+    T.Transaction[T.Coinlist] = True
     try:
-        with open(LIB.OS.path.join("engine/settings", "coinlist.txt"), "r+") as file:
+        with open(LIB.OS.path.join(DATA.Folder_Path, "COINLIST.txt"), "r+") as file:
             coinlist = []
             for line in file:
                 line = line.strip().upper()
@@ -79,6 +81,7 @@ def OPTIMIZE_COINLIST():
             file.truncate()
             for coin in coinlist: file.write(coin+"\n")
     except Exception as e: MSG.SEND_ERROR(f"OPTIMIZE_COINLIST: {e}")
+    T.Transaction[T.Coinlist] = False
 
 
 def COINLIST_CHANGES():
@@ -94,6 +97,6 @@ def FAVORITELIST():
     path = LIB.OS.path.join(DATA.Folder_Path, f"FAVORITELIST.csv")
     if not LIB.OS.path.exists(path): WRITE.FAVORITELIST()
     try:
-        with open(path, "r", newline=''): return LIB.PD.read_csv(path, names=["Coin"])
+        with open(path, "r", newline=''): return LIB.PD.read_csv(path, names=[DEF.Wallet_Headers[0]])
     except Exception as e: MSG.SEND_ERROR(f"FAVORITELIST: {e}")
 # ----------------------------------------------------------------

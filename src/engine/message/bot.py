@@ -27,20 +27,27 @@ def PROCESSOR():
     date = LIB.DATE.datetime.now()
     while True:
         now = LIB.DATE.datetime.now()
-        # if date.strftime("%d") != now.strftime("%d"):
-        # TODO: TEST THIS
         if date.strftime("%H") != now.strftime("%H"):
-            MSG.SEND("New Day Protocol Start")
+            if date.strftime("%d") != now.strftime("%d"):
+                while True:
+                    if not T.Transaction[T.Coinlist] and not T.Transaction[T.Wallet]:
+                        MSG.SEND("New Day Protocol Start")
+                        WRITE.COINLIST_CHANGES()
+                        WRITE.FAVORITELIST()
+                        WRITE.WALLET_CHANGES()
+                        CALCULATE.WALLET_CHANGES_INFO()
+                        MSG.SEND("New Day Protocol End")
+                        break
+                    else: LIB.TIME.sleep(250)
+            else:
+                while True:
+                    if not T.Transaction[T.Coinlist] and not T.Transaction[T.Wallet]:
+                        MSG.SEND("New Hour Protocol Start")
+                        WRITE.COINLIST_CHANGES()
+                        WRITE.FAVORITELIST()
+                        MSG.SEND("New Hour Protocol End")
+                        break
+                    else: LIB.TIME.sleep(250)
             date = now
-            WRITE.WALLET_CHANGES()
-            T.Transaction_Lock[T.ANALYSIS_WALLET] = True
-            CALCULATE.WALLET_INFO()
-            T.Transaction_Lock[T.ANALYSIS_WALLET] = False
-            T.Transaction_Lock[T.ANALYSIS_COIN_LIST] = T.Transaction_Lock[T.WRITE_COIN_LIST] = True
-            T.Transaction_Lock[T.INSERT_COIN_LIST] = T.Transaction_Lock[T.DROP_COIN_LIST] = True
-            DATA.GET_COINLIST_INFO()
-            T.Transaction_Lock[T.ANALYSIS_COIN_LIST] = T.Transaction_Lock[T.WRITE_COIN_LIST] = False
-            T.Transaction_Lock[T.INSERT_COIN_LIST] = T.Transaction_Lock[T.DROP_COIN_LIST] = False
-            MSG.SEND("New Day Protocol End")
         LIB.TIME.sleep(1000)
 # ----------------------------------------------------------------

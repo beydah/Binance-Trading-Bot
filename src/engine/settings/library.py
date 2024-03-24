@@ -6,13 +6,13 @@ import pandas as PD
 import pandas_ta as TA
 # ----------------------------------------------------------------
 # Added Libraries
-import requests as REQUEST
+from threading import Thread as THREAD
+from decimal import Decimal as DECIMAL
+import string as STRING
+import datetime as DATE
+import time as TIME
 import os as OS
 import csv as CSV
 import heapq as HEAP
-import time as TIME
-import datetime as DATE
-import string as STRING
-from decimal import Decimal as DECIMAL
-from threading import Thread as THREAD
+import requests as REQUEST
 # ----------------------------------------------------------------
