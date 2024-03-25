@@ -52,7 +52,7 @@ def GET_ACCOUNT():
     while True:
         try: return binance.get_account(timestamp=LIB.TIME.time() - time_gap)
         except Exception as e:
-            if time_gap <= 5000: time_gap += 1000
+            if time_gap < 5000: time_gap += 1000
             else:
                 time_gap = 0
                 MSG.SEND_ERROR(f"GET_ACCOUNT: {e}")
