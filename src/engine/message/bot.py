@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------
 # Added Links
 # DATA
-from src.engine.data import data as DATA
+from src.engine.data import read as READ
 from src.engine.data import write as WRITE
 # MATH
 from src.engine.math import calculator as CALCULATE
@@ -12,6 +12,7 @@ from src.engine.message import transactions as T
 # SETTING
 from src.engine.settings import api as API
 from src.engine.settings import library as LIB
+from src.engine.settings import settings as DEF
 # ----------------------------------------------------------------
 
 
@@ -30,24 +31,39 @@ def PROCESSOR():
         if date.strftime("%H") != now.strftime("%H"):
             if date.strftime("%d") != now.strftime("%d"):
                 while True:
-                    if not T.Transaction[T.Coinlist] and not T.Transaction[T.Wallet]:
-                        MSG.SEND("New Day Protocol Start")
-                        WRITE.COINLIST_CHANGES()
-                        WRITE.FAVORITELIST()
-                        WRITE.WALLET_CHANGES()
-                        CALCULATE.WALLET_CHANGES_INFO()
-                        MSG.SEND("New Day Protocol End")
-                        break
-                    else: LIB.TIME.sleep(250)
-            else:
-                while True:
-                    if not T.Transaction[T.Coinlist] and not T.Transaction[T.Wallet]:
-                        MSG.SEND("New Hour Protocol Start")
-                        WRITE.COINLIST_CHANGES()
-                        WRITE.FAVORITELIST()
-                        MSG.SEND("New Hour Protocol End")
-                        break
-                    else: LIB.TIME.sleep(250)
+                    if T.Transaction[T.Wallet]: LIB.TIME.sleep(250)
+                    else: break
+                MSG.SEND("New Day Protocol Start")
+                WRITE.WALLET_CHANGES()
+                CALCULATE.WALLET_CHANGES_INFO()
+                MSG.SEND("New Day Protocol End")
+            while True:
+                if T.Transaction[T.Coinlist]: LIB.TIME.sleep(250)
+                else: break
+            MSG.SEND("New Hour Protocol Start")
+            WRITE.COINLIST_CHANGES()
+            WRITE.FAVORITELIST()
+            MSG.SEND("New Hour Protocol End")
             date = now
         LIB.TIME.sleep(1000)
+
+
+def BACKTESTER(Prompt):
+    T.Transaction[T.Coin] = True
+    Prompt = Prompt.replace(" ", "")
+    coin = entry_wallet = monthly_addition = None
+    if "," in Prompt:
+        if Prompt.count(",") == 1: coin, entry_wallet = Prompt.split(",")
+        elif Prompt.count(",") == 2: coin, entry_wallet, monthly_addition = Prompt.split(",")
+    else: coin = Prompt
+    if CALCULATE.FIND_COIN(coin):
+        prices = READ.CANDLE(Coin=coin, Period=DEF.Candle_Periods[4], Head_ID=4)
+        if len(prices) < 205: MSG.SEND(f"I cannot test because {coin} is still very new.")
+        else:
+            try: entry_wallet = int(entry_wallet)
+            except Exception: entry_wallet = 1000
+            try: monthly_addition = int(monthly_addition)
+            except Exception: monthly_addition = 100
+            for period in DEF.Candle_Periods: TRADE.BEYZA_BACKTEST(coin, period, entry_wallet, monthly_addition)
+    T.Transaction[T.Coin] = False
 # ----------------------------------------------------------------

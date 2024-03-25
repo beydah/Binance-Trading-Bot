@@ -1,7 +1,6 @@
 # ----------------------------------------------------------------
 # Added Links
 # MESSAGE
-from src.engine.message import bot as BOT
 from src.engine.message import transactions as T
 # SETTING
 from src.engine.settings import api as API

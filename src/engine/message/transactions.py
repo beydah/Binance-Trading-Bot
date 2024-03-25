@@ -8,6 +8,7 @@ from src.engine.data import read as READ
 from src.engine.math import calculator as CALCULATE
 from src.engine.math import trade as TRADE
 # MESSAGE
+from src.engine.message import bot as BOT
 from src.engine.message import message as MSG
 # SETTING
 from src.engine.settings import library as LIB
@@ -90,14 +91,12 @@ def TRANSACTION(User_Name, Raw_Prompt, Prompt):
         elif Prompt == "FIRST MOMENT": MSG.SEND("If your bag was in your other hand, I would hold your hand")
         else: MSG.SEND(f"{Raw_Prompt} '/info'")
     else:
+        Transaction[Write] = False
         if Prompt == "EXIT": MSG.SEND("I am Exit")
-        # ----------------------------------------------------------------
         elif Write_Transaction[0] == "GET COINLIST FOR WRITE": WRITE.COINLIST(Prompt)
         elif Write_Transaction[0] == "GET COIN FOR INSERT": WRITE.INSERT_COINLIST(Prompt)
         elif Write_Transaction[0] == "GET COIN FOR DROP": WRITE.DROP_COINLIST(Prompt)
         elif Write_Transaction[0] == "GET COIN FOR ANALYSIS": CALCULATE.COIN_INFO(Prompt)
-        elif Write_Transaction[0] == "GET COIN FOR BACKTEST": TRADE.TEST(Raw_Prompt)
-        # ----------------------------------------------------------------
-        Transaction[Write] = False
+        elif Write_Transaction[0] == "GET COIN FOR BACKTEST": BOT.BACKTESTER(Raw_Prompt)
         Write_Transaction[0] = ""
 # ----------------------------------------------------------------

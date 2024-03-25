@@ -23,6 +23,12 @@ StochRSI_Stoch_Length = 5
 StochRSI_Smooth_K = 5
 StochRSI_Smooth_D = 5
 # ----------------------------------------------------------------
+# Signal Settings
+RSI_Buy_Limit = 30
+RSI_Sell_Limit = 70
+Golden_Five_Buy_Limit = 3
+Golden_Five_Sell_Limit = 2
+# ----------------------------------------------------------------
 # Headers
 Candle_Headers = ["Open Time", "Open Price", "High Price", "Low Price", "Close Price",
                   "Volume", "Close Time", "QAV", "NAT", "TBBAV", "TBQAV", "Ignore"]

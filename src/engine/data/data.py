@@ -13,7 +13,7 @@ from src.engine.settings import api as API
 from src.engine.settings import library as LIB
 from src.engine.settings import settings as DEF
 # ----------------------------------------------------------------
-Folder_Path = "../data"
+Folder_Path = "src/.data"
 # ----------------------------------------------------------------
 
 
@@ -52,7 +52,7 @@ def GET_ACCOUNT():
     while True:
         try: return binance.get_account(timestamp=LIB.TIME.time() - time_gap)
         except Exception as e:
-            if time_gap < 5000: time_gap += 1000
+            if time_gap <= 5000: time_gap += 1000
             else:
                 time_gap = 0
                 MSG.SEND_ERROR(f"GET_ACCOUNT: {e}")
@@ -72,8 +72,8 @@ def GET_FULLCOIN():
 
 
 def GET_WALLET_INFO():
-    T.Transaction[T.Wallet] = True
     df = READ.WALLET()
+    T.Transaction[T.Wallet] = True
     wallet = df.values.reshape(df.shape[0], df.shape[1], 1)
     if wallet is not None:
         message = ""
@@ -87,11 +87,7 @@ def GET_WALLET_INFO():
 
 def GET_COINLIST_INFO():
     T.Transaction[T.Coinlist] = True
-    try:
-        WRITE.COINLIST_CHANGES()
-        WRITE.FAVORITELIST()
-        analysis_list = [CALCULATE.MAXLIST(), CALCULATE.MINLIST()]
-        MSG.SEND(f"Alert List:\n{analysis_list[0]}\nFavorite List:\n{analysis_list[1]}")
+    try: MSG.SEND(f"Alert List:\n{CALCULATE.MAXLIST()}\nFavorite List:\n{CALCULATE.MINLIST()}")
     except Exception as e: MSG.SEND_ERROR(f"GET_COINLIST_INFO: {e}")
     T.Transaction[T.Coinlist] = False
 # ----------------------------------------------------------------

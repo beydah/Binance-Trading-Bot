@@ -61,7 +61,6 @@ def DELETE_STOP_LOSS(Coin):
     binance = DATA.GET_BINANCE()
     while True:
         try:
-            # open_orders = binance.get_open_orders(symbol=Coin + "USDT")
             open_orders = DATA.GET_OPEN_ORDERS(Coin + "USDT")
             if open_orders is None: return False
             stop_loss_order = None
@@ -86,14 +85,14 @@ def TEST_SELL(Coin_Quantity, Coin_Price):
 
 
 def VIRTUAL_QUANTITY(Transaction, Coin, Quantity):
-    qty = [DATA.GET_SYMBOL_INFO(Coin=Coin, Info="minQty"), DATA.GET_SYMBOL_INFO(Coin=Coin, Info="maxQty")]
-    if LIB.DECIMAL(qty[0]) > Quantity:
-        MSG.SEND(f"I can't {Transaction} {Coin}\nBeacuse Min Quantity: {float(qty[0])}\n"
+    quantity_info = [DATA.GET_SYMBOL_INFO(Coin=Coin, Info="minQty"), DATA.GET_SYMBOL_INFO(Coin=Coin, Info="maxQty")]
+    if LIB.DECIMAL(quantity_info[0]) > Quantity:
+        MSG.SEND(f"I can't {Transaction} {Coin}\nBeacuse Min Quantity: {float(quantity_info[0])}\n"
                  f"My Request Quantity: {float(Quantity)}\n")
         return None
-    if LIB.DECIMAL(qty[1]) < Quantity: Quantity = LIB.DECIMAL(qty[1])
+    if LIB.DECIMAL(quantity_info[1]) < Quantity: Quantity = LIB.DECIMAL(quantity_info[1])
     min_step = 0
-    for char in qty[0]:
+    for char in quantity_info[0]:
         if char == "0": min_step += 1
         elif char == "1": break
     if Quantity == int(Quantity): virtual_quantity = f"{int(Quantity)}."+("0" * 8)
@@ -175,37 +174,25 @@ def MAXLIST():
 
 
 def COIN_INFO(Coin):
+    while True:
+        if T.Transaction[T.Coin]: LIB.TIME.sleep(100)
+        else: break
+    T.Transaction[T.Coin] = True
     if FIND_COIN(Coin):
-        price = READ.CANDLE(Coin=Coin, Period=DEF.Candle_Periods[0], Limit=205, Head_ID=4)
-        if len(price) < 205:
-            MSG.SEND(f"I cannot calculate\nBecause {Coin} is still very new")
-            return None
-        T.Transaction[T.Coin] = True
-        ema25 = INDICATOR.EMA(MA_Length=DEF.MA_Lengths[0], Prices=price)
-        sma25 = INDICATOR.SMA(MA_Length=DEF.MA_Lengths[0], Prices=price)
-        sma50 = INDICATOR.SMA(MA_Length=DEF.MA_Lengths[1], Prices=price)
-        sma200 = INDICATOR.SMA(MA_Length=DEF.MA_Lengths[2], Prices=price)
-        rsi = INDICATOR.RSI(price)
-        stochRSI = INDICATOR.STOCH_RSI(price)
-        indicator_signal = [0] * 5
-        signals = ["None"] * 5
-        last = len(price) - 2
-        if not any(LIB.PD.isna([stochRSI[last-1], rsi[last-1], sma200[last-1], sma50[last-1], sma25[last-1]])):
-            indicator_signal[1] = INDICATOR.DCA_SIGNAL(price[last-1], price[last], ema25[last-1], ema25[last])
-            indicator_signal[0] = INDICATOR.DCA_SIGNAL(price[last-1], price[last], sma25[last-1], sma25[last])
-            indicator_signal[2] = INDICATOR.GOLDENCROSS_SIGNAL(sma50[last-1], sma50[last], sma200[last-1], sma200[last])
-            indicator_signal[3] = INDICATOR.RSI_SIGNAL(rsi[last])
-            indicator_signal[4] = INDICATOR.RSI_SIGNAL(stochRSI[last])
-            for i in range(len(indicator_signal)):
-                if indicator_signal[i] == 1: signals[i] = "BUY"
-                elif indicator_signal[i] == -1: signals[i] = "SELL"
-        MSG.SEND(f"Coin: {Coin}\nPrice: {float(price[len(price)-1])}\nEMA: {signals[0]}\nSMA: {signals[1]}\n"
-                 f"Golden Cross: {signals[2]}\nRSI: {signals[3]}\nStochRSI: {signals[4]}\n")
-        T.Transaction[T.Coin] = False
+        prices = READ.CANDLE(Coin=Coin, Period=DEF.Candle_Periods[0], Limit=205, Head_ID=4)
+        if len(prices) < 205: MSG.SEND(f"I cannot calculate\nBecause {Coin} is still very new")
+        else:
+            full_signals = INDICATOR.FULL_SIGNALS(prices)
+            signals = ["None"] * 5
+            for i in range(len(full_signals)):
+                if full_signals[i] == 1: signals[i] = "BUY"
+                elif full_signals[i] == -1: signals[i] = "SELL"
+            MSG.SEND(f"Coin: {Coin}\nPrice: {float(prices[len(prices)-1])}\nEMA: {signals[0]}\nSMA: {signals[1]}\n"
+                     f"Golden Cross: {signals[2]}\nRSI: {signals[3]}\nStochRSI: {signals[4]}\n")
+    T.Transaction[T.Coin] = False
 
 
 def WALLET_CHANGES_INFO():
-    T.Transaction[T.Wallet] = True
     wallet = [0] * 3
     for i in range(len(wallet)): wallet[i] = TOTAL_WALLET(i)
     message = f"Total Wallet: {wallet[0]}\nSpot Total Wallet: {wallet[1]}\nEarn Total Wallet: {wallet[2]}\n\n"
@@ -219,5 +206,4 @@ def WALLET_CHANGES_INFO():
             message += f"{headers[i]}: {percents[i]}\n"
         MSG.SEND(message)
     except Exception as e: MSG.SEND_ERROR(f"WALLET_INFO: {e}")
-    T.Transaction[T.Wallet] = False
 # ----------------------------------------------------------------

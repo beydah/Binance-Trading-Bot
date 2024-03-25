@@ -36,7 +36,7 @@ def CANDLE(Coin, Period=None, Limit=None, Datetime=None):
 def WALLET():
     balances = DATA.GET_BALANCES()
     orders = READ.OPEN_ORDER()
-    path = PATH("WALLET.csv")
+    path = PATH("wallet.csv")
     with open(path, "w", newline='') as file:
         writer = LIB.CSV.writer(file, delimiter=',')
         for balance in balances:
@@ -54,7 +54,7 @@ def WALLET():
 
 def WALLET_CHANGES():
     T.Transaction[T.Wallet] = True
-    path = PATH("WALLET_CHANGES.csv")
+    path = PATH("wallet_changes.csv")
     past_balances = []
     try:
         with open(path, "r", newline='') as file:
@@ -77,18 +77,16 @@ def WALLET_CHANGES():
 
 def COINLIST(Coins):
     T.Transaction[T.Coinlist] = True
-    with open(LIB.OS.path.join(DATA.Folder_Path, "COINLIST.txt"), 'w', newline='') as file: file.write(Coins)
+    with open(LIB.OS.path.join(DATA.Folder_Path, "coinlist.txt"), 'w', newline='') as file: file.write(Coins)
     READ.OPTIMIZE_COINLIST()
     MSG.SEND("I Wrote Existing Coins")
-    COINLIST_CHANGES()
-    FAVORITELIST()
     T.Transaction[T.Coinlist] = False
 
 
 def INSERT_COINLIST(Coin):
     T.Transaction[T.Coinlist] = True
     if CALCULATE.FIND_COIN(Coin):
-        with open(LIB.OS.path.join(DATA.Folder_Path, "COINLIST.txt"), 'a', newline='') as file: file.write(Coin+"\n")
+        with open(LIB.OS.path.join(DATA.Folder_Path, "coinlist.txt"), 'a', newline='') as file: file.write(Coin+"\n")
         MSG.SEND(f"I Insert {Coin}")
     T.Transaction[T.Coinlist] = False
 
@@ -99,7 +97,7 @@ def DROP_COINLIST(Coin):
     if coinlist is None: MSG.SEND("I Don't Have Any Coin List\nPlease First 'Write Coin List'")
     else:
         dropped = False
-        with open(LIB.OS.path.join(DATA.Folder_Path, "COINLIST.txt"), 'w', newline='') as file:
+        with open(LIB.OS.path.join(DATA.Folder_Path, "coinlist.txt"), 'w', newline='') as file:
             for coin in coinlist:
                 if coin != Coin: file.write(coin+"\n")
                 else: dropped = True
@@ -110,7 +108,7 @@ def DROP_COINLIST(Coin):
 
 def COINLIST_CHANGES():
     T.Transaction[T.Coinlist] = True
-    path = PATH("COINLIST_CHANGES.csv")
+    path = PATH("coinlist_changes.csv")
     coinlist = READ.COINLIST()
     if coinlist is None: MSG.SEND("I Don't Have Any Coin List\nPlease First 'Write Coin List'")
     else:
@@ -128,7 +126,7 @@ def COINLIST_CHANGES():
 
 
 def FAVORITELIST():
-    path = PATH("FAVORITELIST.csv")
+    path = PATH("favoritelist.csv")
     with open(path, 'w', newline='') as file:
         writer = LIB.CSV.writer(file, delimiter=',')
         minlist = CALCULATE.MINLIST()
@@ -136,7 +134,7 @@ def FAVORITELIST():
 
 
 def DROP_FAVORITELIST(Coin):
-    path = PATH("FAVORITELIST.csv")
+    path = PATH("favoritelist.csv")
     coinlist = READ.FAVORITELIST()
     with open(path, 'w', newline='') as file:
         writer = LIB.CSV.writer(file, delimiter=',')

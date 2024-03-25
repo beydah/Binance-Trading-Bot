@@ -33,7 +33,7 @@ def WALLET(Coin=None, Head_ID=None):
 
 
 def WALLET_CHANGES(Head_ID=None):
-    path = LIB.OS.path.join(DATA.Folder_Path, "WALLET_CHANGES.csv")
+    path = LIB.OS.path.join(DATA.Folder_Path, "wallet_changes.csv")
     if not LIB.OS.path.exists(path): WRITE.WALLET_CHANGES()
     try:
         with open(path, "r", newline=''): df = LIB.PD.read_csv(path, names=DEF.Wallet_Changes_Headers)
@@ -62,7 +62,7 @@ def COINLIST():
     try:
         OPTIMIZE_COINLIST()
         coinlist = []
-        with open(LIB.OS.path.join(DATA.Folder_Path, "COINLIST.txt"), "r+") as file:
+        with open(LIB.OS.path.join(DATA.Folder_Path, "coinlist.txt"), "r+") as file:
             for line in file: coinlist.append(line.strip())
         return coinlist
     except Exception as e: MSG.SEND_ERROR(f"COINLIST: {e}")
@@ -71,7 +71,7 @@ def COINLIST():
 def OPTIMIZE_COINLIST():
     T.Transaction[T.Coinlist] = True
     try:
-        with open(LIB.OS.path.join(DATA.Folder_Path, "COINLIST.txt"), "r+") as file:
+        with open(LIB.OS.path.join(DATA.Folder_Path, "coinlist.txt"), "r+") as file:
             coinlist = []
             for line in file:
                 line = line.strip().upper()
@@ -85,7 +85,7 @@ def OPTIMIZE_COINLIST():
 
 
 def COINLIST_CHANGES():
-    path = LIB.OS.path.join(DATA.Folder_Path, "COINLIST_CHANGES.csv")
+    path = LIB.OS.path.join(DATA.Folder_Path, "coinlist_changes.csv")
     if not LIB.OS.path.exists(path): WRITE.COINLIST_CHANGES()
     try:
         with open(path, "r", newline=""): return LIB.PD.read_csv(path, names=DEF.Coinlist_Changes_Headers)
@@ -94,7 +94,7 @@ def COINLIST_CHANGES():
 
 
 def FAVORITELIST():
-    path = LIB.OS.path.join(DATA.Folder_Path, f"FAVORITELIST.csv")
+    path = LIB.OS.path.join(DATA.Folder_Path, f"favoritelist.csv")
     if not LIB.OS.path.exists(path): WRITE.FAVORITELIST()
     try:
         with open(path, "r", newline=''): return LIB.PD.read_csv(path, names=[DEF.Wallet_Headers[0]])

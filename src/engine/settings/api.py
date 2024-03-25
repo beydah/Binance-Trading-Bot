@@ -9,5 +9,5 @@ Telegram_Bot_Token = ""
 Telegram_User_ID = ""
 # ----------------------------------------------------------------
 # Your Binance Bots
-Client = LIB.BINANCE(Binance_Key, Binance_Secret)
+Binance = LIB.BINANCE(Binance_Key, Binance_Secret)
 # ----------------------------------------------------------------
