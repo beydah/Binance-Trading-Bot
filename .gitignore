@@ -1,5 +1,5 @@
+/documents/
 /.idea/
-/src/.data/
-/src/.data/coinlist.txt
-/src/engine/settings/api.py
 /venv/
+/src/.data/
+/src/engine/settings/api.py
