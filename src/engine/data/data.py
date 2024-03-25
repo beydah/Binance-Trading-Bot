@@ -4,16 +4,16 @@
 from src.engine.data import write as WRITE
 from src.engine.data import read as READ
 # MATH
-from src.engine.math import calculator as CALCULATE
+from src.engine.trade import calculator as CALCULATE
 # MESSAGE
-from src.engine.message import message as MSG
-from src.engine.message import transactions as T
+from src.engine.bot import message as MSG
+from src.engine.bot import transactions as T
 # SETTING
 from src.engine.settings import api as API
 from src.engine.settings import library as LIB
 from src.engine.settings import settings as DEF
 # ----------------------------------------------------------------
-Folder_Path = "src/.data"
+Folder_Path = ".data"
 # ----------------------------------------------------------------
 
 
@@ -52,7 +52,7 @@ def GET_ACCOUNT():
     while True:
         try: return binance.get_account(timestamp=LIB.TIME.time() - time_gap)
         except Exception as e:
-            if time_gap < 5000: time_gap += 1000
+            if time_gap < 10000: time_gap += 1000
             else:
                 time_gap = 0
                 MSG.SEND_ERROR(f"GET_ACCOUNT: {e}")

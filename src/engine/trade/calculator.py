@@ -4,10 +4,10 @@
 from src.engine.data import data as DATA
 from src.engine.data import read as READ
 # MATH
-from src.engine.math import indicator as INDICATOR
+from src.engine.trade import indicator as INDICATOR
 # MESSAGE
-from src.engine.message import message as MSG
-from src.engine.message import transactions as T
+from src.engine.bot import message as MSG
+from src.engine.bot import transactions as T
 # SETTING
 from src.engine.settings import library as LIB
 from src.engine.settings import settings as DEF

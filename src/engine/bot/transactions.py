@@ -5,11 +5,11 @@ from src.engine.data import data as DATA
 from src.engine.data import write as WRITE
 from src.engine.data import read as READ
 # MATH
-from src.engine.math import calculator as CALCULATE
-from src.engine.math import trade as TRADE
+from src.engine.trade import calculator as CALCULATE
+from src.engine.trade import trade as TRADE
 # MESSAGE
-from src.engine.message import bot as BOT
-from src.engine.message import message as MSG
+from src.engine.bot import bot as BOT
+from src.engine.bot import message as MSG
 # SETTING
 from src.engine.settings import library as LIB
 from src.engine.settings import settings as DEF

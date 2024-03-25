@@ -3,10 +3,11 @@
 # DATA
 from src.engine.data import write as WRITE
 # MATH
-from src.engine.math import trade as TRADE
+from src.engine.trade import calculator as CALCULATE
+from src.engine.trade import trade as TRADE
 # MESSAGE
-from src.engine.message import bot as BOT
-from src.engine.message import message as MSG
+from src.engine.bot import bot as BOT
+from src.engine.bot import message as MSG
 # SETTINGS
 from src.engine.settings import api as API
 from src.engine.settings import settings as DEF
@@ -20,6 +21,9 @@ def MAIN():
         # ----------------------------------------------------------------
         processor = LIB.THREAD(target=BOT.PROCESSOR)
         processor.start()
+        # ----------------------------------------------------------------
+        WRITE.WALLET_CHANGES()
+        WRITE.COINLIST_CHANGES()
         # ----------------------------------------------------------------
         bot = LIB.THREAD(target=BOT.START)
         bot.start()

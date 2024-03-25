@@ -4,11 +4,11 @@
 from src.engine.data import read as READ
 from src.engine.data import write as WRITE
 # MATH
-from src.engine.math import calculator as CALCULATE
-from src.engine.math import trade as TRADE
+from src.engine.trade import calculator as CALCULATE
+from src.engine.trade import trade as TRADE
 # MESSAGE
-from src.engine.message import message as MSG
-from src.engine.message import transactions as T
+from src.engine.bot import message as MSG
+from src.engine.bot import transactions as T
 # SETTING
 from src.engine.settings import api as API
 from src.engine.settings import library as LIB

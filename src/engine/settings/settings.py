@@ -27,7 +27,7 @@ StochRSI_Smooth_D = 5
 RSI_Buy_Limit = 30
 RSI_Sell_Limit = 70
 Golden_Five_Buy_Limit = 3
-Golden_Five_Sell_Limit = 2
+Golden_Five_Sell_Limit = 3
 # ----------------------------------------------------------------
 # Headers
 Candle_Headers = ["Open Time", "Open Price", "High Price", "Low Price", "Close Price",
