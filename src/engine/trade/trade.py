@@ -77,6 +77,7 @@ def BEYZA_START():
                 if len(prices) < 205:
                     MSG.SEND(f"I Cannot Buy {coin} Because is Still New")
                     WRITE.DROP_FAVORITELIST(coin)
+                    WRITE.DROP_COINLIST(coin)
                     continue
                 if INDICATOR.GOLDEN_FIVE_SIGNAL(INDICATOR.GOLDEN_FIVE(prices)) == -1: continue
                 # ----------------------------------------------------------------

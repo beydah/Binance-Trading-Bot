@@ -41,9 +41,10 @@ def GET_SYMBOL_INFO(Coin, Info):
 
 def GET_OPEN_ORDERS(Symbol=None):
     binance = GET_BINANCE()
+    time_gap = 0
     while True:
-        try: return binance.get_open_orders(symbol=Symbol)
-        except Exception as e: MSG.SEND_ERROR(f"GET_OPEN_ORDER: {e}")
+        try: return binance.get_open_orders(symbol=Symbol, timestamp=LIB.TIME.time() - time_gap)
+        except Exception as e: time_gap = FIND_TIME_GAP(Time_Gap=time_gap, Error=f"GET_OPEN_ORDERS: {e}")
 
 
 def GET_ACCOUNT():
@@ -51,11 +52,7 @@ def GET_ACCOUNT():
     time_gap = 0
     while True:
         try: return binance.get_account(timestamp=LIB.TIME.time() - time_gap)
-        except Exception as e:
-            if time_gap < 10000: time_gap += 1000
-            else:
-                time_gap = 0
-                MSG.SEND_ERROR(f"GET_ACCOUNT: {e}")
+        except Exception as e: time_gap = FIND_TIME_GAP(Time_Gap=time_gap, Error=f"GET_ACCOUNT: {e}")
 
 
 def GET_BALANCES():
@@ -91,6 +88,13 @@ def GET_COINLIST_INFO():
     except Exception as e: MSG.SEND_ERROR(f"GET_COINLIST_INFO: {e}")
     T.Transaction[T.Coinlist] = False
 # ----------------------------------------------------------------
+
+
+def FIND_TIME_GAP(Time_Gap, Error):
+    if Time_Gap < 10000: return Time_Gap + 1000
+    else:
+        MSG.SEND_ERROR(Error)
+        return 0
 
 
 def FIND_WALLET_CHANGE(Now_Balance, Past_Balances, Day):
