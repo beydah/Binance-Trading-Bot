@@ -1,5 +1,5 @@
 /documents/
 /.idea/
 /venv/
-/src/.data/
-/src/engine/settings/api.py
+/.data/
+api.py
