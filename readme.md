@@ -18,18 +18,17 @@
 
 This bot, which can be managed via Telegram, creates Buy/Sell signals using indicators such as 
 RSI, StochRSI, EMA, MA and can make buying and selling decisions based on these signals; can do backtesting; 
-Can analyze coins.
+Can analyze coins. **It is not investment advice. It has risks and losses.**
 
 ### Beydah Saglam
 
-This project was created and developed by Beydah Sağlam. He still continues to develop this project. 
-Solutions for which you can sponsor the developer will be introduced soon.
+This project was created and developed by Beydah Saglam. He still continues to develop this project. 
+**Solutions for which you can sponsor the developer will be introduced soon.**
 
 ### For Support
 
-To provide support to the developer, you can follow it at [github/beydah](https://github.com/beydah).
-
-You can star the project to support the project.
+- To provide support to the developer, you can follow it at [github/beydah](https://github.com/beydah).
+- **You can star the project to support the project.**
 
 <div style="text-align:center;">
     <a href="#binance-trading-bot">
