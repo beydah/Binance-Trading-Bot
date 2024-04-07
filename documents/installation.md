@@ -12,7 +12,7 @@
     </a>
 </div>
 
-## Download
+## Download Steps
 ### Get API Binance & Telegram
 First, log in via the [Binance Website](https://www.binance.com/). Then `Settings -> Account -> API Management`
 gel in the part.
@@ -62,7 +62,7 @@ Extract the zip file to the folder on your computer where you want it to work.
     </a>
 </div>
 
-## Installation
+## Installation Steps
 ### Installation on PyCharm
 Open the bot you downloaded and extracted to the folder you want it to run in the PyCharm application.
 
