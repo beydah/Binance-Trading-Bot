@@ -42,6 +42,16 @@ Another important process is the analysis part. Thanks to the analysis, I can ca
 
 ### Trade Start & Stop
 
+To operate this bot, which buys and sells by evaluating RSI, Stoch RSI, Golden Cross, DCA and EMA signals.
+You need to send `Open Trade` message on Telegram. Binance API must have the correct permissions to send this message.
+you must have.
+
+In case of emergency, when you need to switch to full cash, you can stop the running bot by sending a 'Close Trade' message.
+These actions do not close the bot but start or stop Trades.
+
+**Note:** Sometimes the bot may stop for an unknown reason without giving an error message. In such cases, Trade transactions
+You must first turn it close and then turn it open again.
+
 <div style="text-align:center;">
     <a href="#binance-trading-bot">
         <img src="https://i.imgur.com/waxVImv.png" alt="Colorful Stick">
