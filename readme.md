@@ -52,7 +52,7 @@ This project was created and developed by Beydah Saglam. He still continues to d
 ### Agreement
 
 - [Disclaimer](https://github.com/beydah/Binance-Trading-Bot/blob/main/documents/agreement.md#disclaimer)
-- [Lisence](https://github.com/beydah/Binance-Trading-Bot/blob/main/documents/agreement.md#lisence)
+- [License](https://github.com/beydah/Binance-Trading-Bot/blob/main/documents/agreement.md#license)
 
 <div style="text-align:center;">
     <a href="#binance-trading-bot">
