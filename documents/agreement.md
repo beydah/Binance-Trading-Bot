@@ -34,7 +34,7 @@ It is your responsibility, not the developer's. Any signals given by this bot ar
 The bot can only send buy or sell signals with classical calculations, and these signals indicate more than predictions.
 It does not.
 
-## Licence
+## License
 
 ### GNU License
 This bot is licensed under the GNU General Public License version 3 or later ("License"). a copy of the license
