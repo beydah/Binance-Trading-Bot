@@ -67,12 +67,26 @@ Extract the zip file to the folder on your computer where you want it to work.
 Open the bot you downloaded and extracted to the folder you want it to run in the PyCharm application.
 
 ### Create Venv on PyCharm
-requirements.txt dosyasındaki kütüphanelerin de indirileceği bir venv dosyası oluştur (PyCharm uygulamayı ilk açtığında
-size soracak. Eğer bu soruya evet yanıtını vermediyseniz kendiniz kurmanız gerekir. Bunun için Settings > 
-Python Interpreter > Add Interpreter > Add Local Interpreter kısmına gidin ve açılan yerde Virtual Enverionment 
-seçeneği ile venv dosyanızı oluşturun [DEVAMI GELECEK]).
+Create a venv file from which the libraries in the requirements.txt file will also be downloaded
+
+PyCharm will ask you when it first opens the application. If you did not answer yes to this question, you will need to install it yourself.
+To do this, go to Settings > Python Interpreter > Add Interpreter > Add Local Interpreter and click
+Create your venv file with the Virtual Enverionment option. To install libraries in the venv file you created
+Open the terminal from within PyCharm and run these two commands:
+- `python -m pip install --upgrade pip`
+- `pip install -r requirements.txt`
+
+Then complete the configurations from the Edit Configuration section. The file you need to run is main.py.
+This file is located in src. The folder where Python will run is the src folder. The Python you need to run is in venv
+is Python (Or Python where you installed the libraries.)
 
 ### Enter Your APIs
+Finally, open the `src -> engine -> settings -> api.py` file. Make notes in the blank spaces in this file.
+Enter the keys in the correct order.
+
+If you have done everything explained so far correctly, your bot is ready. If you want to support me, you can complete the project
+You can star and follow [github/beydah](https://github.com/beydah/). Before you start using the bot
+Do not forget to read the agreements and investment risks sections on the next page.
 
 <div style="text-align:center;">
     <a href="#binance-trading-bot">
@@ -84,7 +98,7 @@ seçeneği ile venv dosyanızı oluşturun [DEVAMI GELECEK]).
     <a href="#binance-trading-bot">
         <img src="https://raw.githubusercontent.com/beydah/asset/main/button/scroll_off.png" style="width: 15%;"  alt="^ Scroll UP ^">
     </a>
-    <a href="https://github.com/beydah/Binance-Trading-Bot/blob/main/documents/installation.md">
+    <a href="https://github.com/beydah/Binance-Trading-Bot/blob/main/documents/agreement.md">
         <img src="https://raw.githubusercontent.com/beydah/asset/main/button/next_on.png" style="width: 15%;"  alt=">> Continue Reading >>">
     </a>
 </div>
