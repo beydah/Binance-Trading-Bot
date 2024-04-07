@@ -20,7 +20,7 @@ def MARKET_BUY(Coin, Quantity):
     binance = DATA.GET_BINANCE()
     while True:
         try:
-            binance.order_market(symbol=Coin + "USDT", side="BUY", quantity=virtual_quantity)
+            binance.order_market(symbol=Coin+"USDT", side="BUY", quantity=virtual_quantity)
             break
         except Exception as e: MSG.SEND_ERROR(f"MARKET_BUY: {e}")
     MSG.SEND(f"Buy - {virtual_quantity} {Coin}")
@@ -33,7 +33,7 @@ def MARKET_SELL(Coin, Quantity):
     binance = DATA.GET_BINANCE()
     while True:
         try:
-            binance.order_market(symbol=Coin + "USDT", side="SELL", quantity=virtual_quantity)
+            binance.order_market(symbol=Coin+"USDT", side="SELL", quantity=virtual_quantity)
             break
         except Exception as e: MSG.SEND_ERROR(f"MARKET_SELL: {e}")
     MSG.SEND(f"Sell - {virtual_quantity} {Coin}")
@@ -49,7 +49,7 @@ def STOP_LOSS(Coin):
         try:
             price = READ.CANDLE(Coin=Coin, Period="1m", Limit=1, Head_ID=4)
             stop_price = round(float(price[0]) * DEF.Stop_Loss_Rate, len(str(price[0]).split(".")[-1]))
-            binance.create_order(symbol=Coin + "USDT", type="STOP_LOSS_LIMIT", side="SELL",
+            binance.create_order(symbol=Coin+"USDT", type="STOP_LOSS_LIMIT", side="SELL",
                                  price=stop_price, stopPrice=stop_price, quantity=virtual_quantity, timeInForce="GTC")
             break
         except Exception as e: MSG.SEND_ERROR(f"STOP_LOSS: {e}")
@@ -69,7 +69,7 @@ def DELETE_STOP_LOSS(Coin):
                     stop_loss_order = order
                     break
             if stop_loss_order is None: return False
-            binance.cancel_order(symbol=Coin + "USDT", orderId=stop_loss_order['orderId'])
+            binance.cancel_order(symbol=Coin+"USDT", orderId=stop_loss_order['orderId'])
             break
         except Exception as e: MSG.SEND_ERROR(f"DELETE_STOP_LOSS: {e}")
     return True
@@ -118,8 +118,8 @@ def USDT_BALANCE(Coin, Balance):
     if Coin[:2] == "LD": coin = Coin[2:]
     else: coin = Coin
     if coin != "USDT":
-        price = READ.CANDLE(Coin=coin, Period="1m", Limit=1, Head_ID=4)
-        Balance = DATA.FIND_USDT_QUANTITY(Coin_Quantity=Balance, Coin_Price=price[0])
+        price = READ.CANDLE(Coin=coin, Period="1m", Limit=1, Head_ID=4)[0]
+        Balance = DATA.FIND_USDT_QUANTITY(Coin_Quantity=Balance, Coin_Price=price)
     if Balance > DEF.MIN_USDT_Balance: return float(round(Balance, 3))
     return 0
 

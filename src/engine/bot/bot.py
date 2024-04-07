@@ -36,14 +36,12 @@ def PROCESSOR():
                 MSG.SEND("New Day Protocol Start")
                 WRITE.WALLET_CHANGES()
                 CALCULATE.WALLET_CHANGES_INFO()
-                MSG.SEND("New Day Protocol End")
             while True:
                 if T.Transaction[T.Coinlist]: LIB.TIME.sleep(250)
                 else: break
             MSG.SEND("New Hour Protocol Start")
             WRITE.COINLIST_CHANGES()
             WRITE.FAVORITELIST()
-            MSG.SEND("New Hour Protocol End")
             date = now
         LIB.TIME.sleep(1000)
 

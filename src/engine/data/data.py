@@ -28,7 +28,7 @@ def GET_CANDLE(Coin, Period=None, Limit=None, Datetime=None):
     if Period is None: Period = DEF.Candle_Periods[0]
     if Limit is None: Limit = DEF.Candle_Limit
     while True:
-        try: return binance.get_historical_klines(symbol=Coin + "USDT", interval=Period, end_str=Datetime, limit=Limit)
+        try: return binance.get_historical_klines(symbol=Coin+"USDT", interval=Period, end_str=Datetime, limit=Limit)
         except Exception as e: MSG.SEND_ERROR(f"GET_CANDLE: {e}")
 
 
@@ -37,6 +37,13 @@ def GET_SYMBOL_INFO(Coin, Info):
     while True:
         try: return binance.get_symbol_info(Coin + "USDT")["filters"][1][Info]
         except Exception as e: MSG.SEND_ERROR(f"GET_SYMBOLINFO: {e}")
+
+
+def GET_LAST_PRICE(Coin):
+    binance = GET_BINANCE()
+    while True:
+        try: return binance.get_my_trades(symbol=Coin + "USDT", limit=1)[0]["price"]
+        except Exception as e: MSG.SEND_ERROR(f"GET_LAST_PRICE: {e}")
 
 
 def GET_OPEN_ORDERS(Symbol=None):
@@ -55,9 +62,7 @@ def GET_ACCOUNT():
         except Exception as e: time_gap = FIND_TIME_GAP(Time_Gap=time_gap, Error=f"GET_ACCOUNT: {e}")
 
 
-def GET_BALANCES():
-    account = GET_ACCOUNT()
-    return account["balances"]
+def GET_BALANCES(): return GET_ACCOUNT()["balances"]
 
 
 def GET_FULLCOIN():

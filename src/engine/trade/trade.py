@@ -50,6 +50,13 @@ def BEYZA_START():
                 if wallet[headers[0]][i][:2] == "LD" or wallet[headers[0]][i] == "USDT": continue
                 if wallet[headers[2]][i] <= DEF.MIN_USDT_Balance: continue
                 # ----------------------------------------------------------------
+                # TODO: TEST
+                last_price = float(DATA.GET_LAST_PRICE(wallet[headers[0]][i]))
+                price = float(READ.CANDLE(Coin=wallet[headers[0]][i], Limit=1, Head_ID=4)[0])
+                if (price * 0.99) >= last_price:
+                    CALCULATE.DELETE_STOP_LOSS(wallet[headers[0]][i])
+                    CALCULATE.STOP_LOSS(wallet[headers[0]][i])
+                # ----------------------------------------------------------------
                 prices = READ.CANDLE(Coin=wallet[headers[0]][i], Period=DEF.Candle_Periods[4], Limit=205, Head_ID=4)
                 if len(prices) < 205:
                     MSG.SEND(f"I Cannot Sell {wallet[headers[0]][i]} Because is Still New")
@@ -92,7 +99,6 @@ def BEYZA_START():
         # ----------------------------------------------------------------
         if T.Transaction[T.Trade]: MSG.SEND("Trade Bot Wait")
         LIB.TIME.sleep(500)
-        if T.Transaction[T.Trade]: MSG.SEND("Trade Bot Restart")
 # ----------------------------------------------------------------
 
 

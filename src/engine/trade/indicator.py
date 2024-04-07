@@ -45,7 +45,6 @@ def GOLDEN_FIVE_TEST(Old_Price, Price, Old_EMA25, EMA25, Old_SMA25, SMA25,
     return [signal_buy, signal_sell]
 # ----------------------------------------------------------------
 
-
 def DCA_SIGNAL(Old_Prices, Prices, Old_SMA25, SMA25):
     if Old_Prices < Old_SMA25 and Prices > SMA25: return 1
     if Old_Prices > Old_SMA25 and Prices < SMA25: return -1
@@ -57,6 +56,20 @@ def GOLDEN_CROSS_SIGNAL(Old_SMA50, SMA50, Old_SMA200, SMA200):
     if Old_SMA50 > Old_SMA200 and SMA50 < SMA200: return -1
     return 0
 
+
+# TODO: TEST
+"""
+def DCA_SIGNAL(Old_Prices, Prices, Old_SMA25, SMA25):
+    if Prices > SMA25: return 1
+    if Prices < SMA25: return -1
+    return 0
+
+
+def GOLDEN_CROSS_SIGNAL(Old_SMA50, SMA50, Old_SMA200, SMA200):
+    if SMA50 > SMA200: return 1
+    if SMA50 < SMA200: return -1
+    return 0
+"""
 
 def RSI_SIGNAL(RSI_Num):
     if RSI_Num < 30: return 1

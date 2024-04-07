@@ -28,6 +28,11 @@ RSI_Buy_Limit = 30
 RSI_Sell_Limit = 70
 Golden_Five_Buy_Limit = 3
 Golden_Five_Sell_Limit = 3
+# TODO: TEST
+"""
+Golden_Five_Buy_Limit = 4
+Golden_Five_Sell_Limit = 4
+"""
 # ----------------------------------------------------------------
 # Headers
 Candle_Headers = ["Open Time", "Open Price", "High Price", "Low Price", "Close Price",
