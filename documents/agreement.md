@@ -12,7 +12,7 @@
     </a>
 </div>
 
-## Risks
+## Disclaimer
 
 ### Risks of Loss
 
