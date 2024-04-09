@@ -48,8 +48,8 @@ def OPEN_ORDER():
     if open_orders is None: return None
     orders = []
     for order in open_orders:
-        coin = order["symbol"].removesuffix("USDT")
-        quantity = float(order["origQty"])
+        coin = order['symbol'].removesuffix("USDT")
+        quantity = float(order['origQty'])
         close_price = CANDLE(Coin=coin, Period="1m", Limit=1, Head_ID=4)
         usdt_quantity = float(DATA.FIND_USDT_QUANTITY(Coin_Quantity=quantity, Coin_Price=close_price[0]))
         headers = [DEF.Wallet_Headers[0], DEF.Wallet_Headers[1], DEF.Wallet_Headers[2]]

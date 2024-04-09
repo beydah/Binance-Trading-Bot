@@ -51,9 +51,9 @@ def BEYZA_START():
                 if wallet[headers[2]][i] <= DEF.MIN_USDT_Balance: continue
                 # ----------------------------------------------------------------
                 # TODO: TEST
-                last_price = float(DATA.GET_LAST_PRICE(wallet[headers[0]][i]))
+                last_price = float(DATA.GET_STOP_LOSS_ORDER(wallet[headers[0]][i])['price'])
                 price = float(READ.CANDLE(Coin=wallet[headers[0]][i], Limit=1, Head_ID=4)[0])
-                if (price * 0.99) >= last_price:
+                if (price * 0.98) >= last_price:
                     CALCULATE.DELETE_STOP_LOSS(wallet[headers[0]][i])
                     CALCULATE.STOP_LOSS(wallet[headers[0]][i])
                 # ----------------------------------------------------------------

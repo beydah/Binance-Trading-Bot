@@ -35,15 +35,25 @@ def GET_CANDLE(Coin, Period=None, Limit=None, Datetime=None):
 def GET_SYMBOL_INFO(Coin, Info):
     binance = GET_BINANCE()
     while True:
-        try: return binance.get_symbol_info(Coin + "USDT")["filters"][1][Info]
+        try: return binance.get_symbol_info(Coin+"USDT")['filters'][1][Info]
         except Exception as e: MSG.SEND_ERROR(f"GET_SYMBOLINFO: {e}")
 
 
 def GET_LAST_PRICE(Coin):
     binance = GET_BINANCE()
     while True:
-        try: return binance.get_my_trades(symbol=Coin + "USDT", limit=1)[0]["price"]
+        try: return binance.get_my_trades(symbol=Coin+"USDT", limit=1)[0]['price']
         except Exception as e: MSG.SEND_ERROR(f"GET_LAST_PRICE: {e}")
+
+
+def GET_STOP_LOSS_ORDER(Coin):
+    while True:
+        try:
+            open_orders = GET_OPEN_ORDERS(Coin+"USDT")
+            if open_orders is None: return None
+            for order in open_orders:
+                if order['type'] == 'STOP_LOSS_LIMIT' and order['side'] == 'SELL': return order
+        except Exception as e: MSG.SEND_ERROR(f"DELETE_STOP_LOSS: {e}")
 
 
 def GET_OPEN_ORDERS(Symbol=None):
@@ -62,13 +72,13 @@ def GET_ACCOUNT():
         except Exception as e: time_gap = FIND_TIME_GAP(Time_Gap=time_gap, Error=f"GET_ACCOUNT: {e}")
 
 
-def GET_BALANCES(): return GET_ACCOUNT()["balances"]
+def GET_BALANCES(): return GET_ACCOUNT()['balances']
 
 
 def GET_FULLCOIN():
     balances = GET_BALANCES()
     df = LIB.PD.DataFrame(columns=[DEF.Wallet_Headers[0]])
-    for balance in balances: df = df._append({DEF.Wallet_Headers[0]: balance["asset"]}, ignore_index=True)
+    for balance in balances: df = df._append({DEF.Wallet_Headers[0]: balance['asset']}, ignore_index=True)
     return df
 # ----------------------------------------------------------------
 

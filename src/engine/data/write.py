@@ -40,10 +40,10 @@ def WALLET():
     with open(path, "w", newline='') as file:
         writer = LIB.CSV.writer(file, delimiter=',')
         for balance in balances:
-            if float(balance["free"]) <= 0: continue
-            usdt_balance = CALCULATE.USDT_BALANCE(Coin=balance["asset"], Balance=float(balance["free"]))
+            if float(balance['free']) <= 0: continue
+            usdt_balance = CALCULATE.USDT_BALANCE(Coin=balance['asset'], Balance=float(balance['free']))
             if usdt_balance <= DEF.Ignored_USDT_Balance: continue
-            writer.writerow([balance["asset"], float(round(float(balance["free"]), 9)), float(round(usdt_balance, 3))])
+            writer.writerow([balance['asset'], float(round(float(balance['free']), 9)), float(round(usdt_balance, 3))])
         if orders is not None:
             for index, order in orders.iterrows():
                 headers = [DEF.Wallet_Headers[0], DEF.Wallet_Headers[1], DEF.Wallet_Headers[2]]

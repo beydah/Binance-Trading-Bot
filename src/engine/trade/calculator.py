@@ -61,18 +61,11 @@ def DELETE_STOP_LOSS(Coin):
     binance = DATA.GET_BINANCE()
     while True:
         try:
-            open_orders = DATA.GET_OPEN_ORDERS(Coin + "USDT")
-            if open_orders is None: return False
-            stop_loss_order = None
-            for order in open_orders:
-                if order['type'] == 'STOP_LOSS_LIMIT' and order['side'] == 'SELL':
-                    stop_loss_order = order
-                    break
-            if stop_loss_order is None: return False
-            binance.cancel_order(symbol=Coin+"USDT", orderId=stop_loss_order['orderId'])
-            break
+            order_id = DATA.GET_STOP_LOSS_ORDER(Coin)['orderId']
+            if order_id is None: return False
+            binance.cancel_order(symbol=Coin+"USDT", orderId=order_id)
+            return True
         except Exception as e: MSG.SEND_ERROR(f"DELETE_STOP_LOSS: {e}")
-    return True
 
 
 def TEST_BUY(USDT_Quantity, Coin_Price):
