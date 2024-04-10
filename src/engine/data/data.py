@@ -23,6 +23,13 @@ def GET_BINANCE():
         except Exception as e: MSG.SEND_ERROR(f"GET_BINANCE: {e}")
 
 
+def GET_SERVER_TIME():
+    binance = GET_BINANCE()
+    while True:
+        try: return binance.get_server_time()["serverTime"]
+        except Exception as e: MSG.SEND_ERROR(f"GET_BINANCE_SERVER_TIME: {e}")
+
+
 def GET_CANDLE(Coin, Period=None, Limit=None, Datetime=None):
     binance = GET_BINANCE()
     if Period is None: Period = DEF.Candle_Periods[0]
@@ -46,6 +53,14 @@ def GET_LAST_PRICE(Coin):
         except Exception as e: MSG.SEND_ERROR(f"GET_LAST_PRICE: {e}")
 
 
+def GET_OPEN_ORDERS(Symbol=None):
+    binance = GET_BINANCE()
+    time_gap = 0
+    while True:
+        try: return binance.get_open_orders(symbol=Symbol, timestamp=GET_SERVER_TIME() - time_gap)
+        except Exception as e: time_gap = FIND_TIME_GAP(Time_Gap=time_gap, Error=f"GET_OPEN_ORDERS: {e}")
+
+
 def GET_STOP_LOSS_ORDER(Coin):
     while True:
         try:
@@ -53,22 +68,15 @@ def GET_STOP_LOSS_ORDER(Coin):
             if open_orders is None: return None
             for order in open_orders:
                 if order['type'] == 'STOP_LOSS_LIMIT' and order['side'] == 'SELL': return order
+            return None
         except Exception as e: MSG.SEND_ERROR(f"DELETE_STOP_LOSS: {e}")
-
-
-def GET_OPEN_ORDERS(Symbol=None):
-    binance = GET_BINANCE()
-    time_gap = 0
-    while True:
-        try: return binance.get_open_orders(symbol=Symbol, timestamp=LIB.TIME.time() - time_gap)
-        except Exception as e: time_gap = FIND_TIME_GAP(Time_Gap=time_gap, Error=f"GET_OPEN_ORDERS: {e}")
 
 
 def GET_ACCOUNT():
     binance = GET_BINANCE()
     time_gap = 0
     while True:
-        try: return binance.get_account(timestamp=LIB.TIME.time() - time_gap)
+        try: return binance.get_account(timestamp=GET_SERVER_TIME() - time_gap)
         except Exception as e: time_gap = FIND_TIME_GAP(Time_Gap=time_gap, Error=f"GET_ACCOUNT: {e}")
 
 

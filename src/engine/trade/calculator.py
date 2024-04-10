@@ -61,8 +61,9 @@ def DELETE_STOP_LOSS(Coin):
     binance = DATA.GET_BINANCE()
     while True:
         try:
-            order_id = DATA.GET_STOP_LOSS_ORDER(Coin)['orderId']
+            order_id = DATA.GET_STOP_LOSS_ORDER(Coin)
             if order_id is None: return False
+            order_id = order_id['orderId']
             binance.cancel_order(symbol=Coin+"USDT", orderId=order_id)
             return True
         except Exception as e: MSG.SEND_ERROR(f"DELETE_STOP_LOSS: {e}")

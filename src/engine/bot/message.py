@@ -46,5 +46,5 @@ def SEND_TEST(Coin, Period, First_Transaction_Date, Last_Transaction_Date, Buy_N
 
 def SEND_ERROR(Error):
     SEND(f"Error {Error}")
-    LIB.TIME.sleep(15)
+    LIB.TIME.sleep(250)
 # ----------------------------------------------------------------

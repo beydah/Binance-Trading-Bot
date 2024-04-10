@@ -39,13 +39,13 @@ def TRANSACTION(User_Name, Raw_Prompt, Prompt):
             if not Transaction[Coinlist]:
                 Transaction[Write] = True
                 Write_Transaction[0] = "GET COIN FOR INSERT"
-                MSG.SEND(f"Coin List:\n{READ.COINLIST()}\nEnter the coin. But becareful:\n(To Exit: '/exit')")
+                MSG.SEND(f"Coinlist:\n{READ.COINLIST()}\nEnter the coin. But becareful:\n(To Exit: '/exit')")
             else: MSG.SEND("Please Wait...")
         elif Prompt == "DROP COINLIST":
             if not Transaction[Coinlist]:
                 Transaction[Write] = True
                 Write_Transaction[0] = "GET COIN FOR DROP"
-                MSG.SEND(f"Coin List:\n{READ.COINLIST()}\nEnter the coin. But becareful:\n(To Exit: '/exit')")
+                MSG.SEND(f"Coinlist:\n{READ.COINLIST()}\nEnter the coin. But becareful:\n(To Exit: '/exit')")
             else: MSG.SEND("Please Wait...")
         elif Prompt == "ANALYSIS COINLIST":
             if not Transaction[Coinlist]:

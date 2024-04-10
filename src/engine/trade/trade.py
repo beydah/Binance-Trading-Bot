@@ -51,9 +51,11 @@ def BEYZA_START():
                 if wallet[headers[2]][i] <= DEF.MIN_USDT_Balance: continue
                 # ----------------------------------------------------------------
                 # TODO: TEST
-                last_price = float(DATA.GET_STOP_LOSS_ORDER(wallet[headers[0]][i])['price'])
-                price = float(READ.CANDLE(Coin=wallet[headers[0]][i], Limit=1, Head_ID=4)[0])
-                if (price * 0.98) >= last_price:
+                last_price = DATA.GET_STOP_LOSS_ORDER(wallet[headers[0]][i])
+                price = READ.CANDLE(Coin=wallet[headers[0]][i], Limit=1, Head_ID=4)[0]
+                if last_price is None: last_price = float(price) * 0.95
+                else: last_price = last_price['price']
+                if (float(price) * 0.98) >= float(last_price):
                     CALCULATE.DELETE_STOP_LOSS(wallet[headers[0]][i])
                     CALCULATE.STOP_LOSS(wallet[headers[0]][i])
                 # ----------------------------------------------------------------
@@ -127,8 +129,8 @@ def BEYZA_BACKTEST(Coin, Period, Wallet, Monthly_Addition):
             total_invesment += Monthly_Addition
         # ----------------------------------------------------------------
         if not any(LIB.PD.isna([stoch_RSI[i], rsi[i], sma50[i], sma25[i]])):
-            golden_nums = INDICATOR.GOLDEN_FIVE_TEST(prices[i - 2], prices[i - 1], ema25[i-2], ema25[i-1],
-                                                     sma25[i - 2], sma25[i - 1], sma50[i-2], sma50[i-1],
+            golden_nums = INDICATOR.GOLDEN_FIVE_TEST(prices[i-2], prices[i-1], ema25[i-2], ema25[i-1],
+                                                     sma25[i-2], sma25[i-1], sma50[i-2], sma50[i-1],
                                                      sma200[i-2], sma200[i-1], rsi[i-1], stoch_RSI[i-1])
             signal = INDICATOR.GOLDEN_FIVE_SIGNAL(golden_nums)
             if signal == 1 or signal == -1:

@@ -21,7 +21,7 @@ def START():
     bot.set_update_listener(MSG.GET)
     while True:
         try: bot.polling()
-        except Exception as e: MSG.SEND_ERROR(f"Bot Start: {e}")
+        except Exception as e: MSG.SEND_ERROR(f"START: {e}")
 
 
 def PROCESSOR():
