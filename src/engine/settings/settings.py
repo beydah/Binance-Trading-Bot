@@ -1,13 +1,16 @@
 # ----------------------------------------------------------------
 # Candle Default Settings
+# TODO: So I can change it later via telegram.
 Candle_Limit = 1500
 Candle_Periods = ["15m", "30m", "1h", "2h", "4h"]
 # ----------------------------------------------------------------
 # USDT Settings
+# TODO: So I can change it later via telegram.
 Ignored_USDT_Balance = 5
 MIN_USDT_Balance = 10
 # ----------------------------------------------------------------
 # Rate Settings
+# TODO: So I can change it later via telegram.
 Binance_Comission_Rate = 0.99
 Stop_Loss_Rate = 0.98
 # ----------------------------------------------------------------
@@ -16,23 +19,16 @@ Wallet_Change_Days = [1, 3, 7, 15, 30]
 Coin_Change_Days = [7, 30, 90, 180, 365]
 # ----------------------------------------------------------------
 # Indicator Settings
-MA_Lengths = [25, 50, 200]
-RSI_Length = 15
-StochRSI_Length = 5
-StochRSI_Stoch_Length = 5
-StochRSI_Smooth_K = 5
-StochRSI_Smooth_D = 5
+# TODO: So I can change it later via telegram.
+MA_Lengths = [20, 40, 80, 160]
+RSI_Lengths = [5, 10]
 # ----------------------------------------------------------------
 # Signal Settings
-RSI_Buy_Limit = 30
-RSI_Sell_Limit = 70
-Golden_Five_Buy_Limit = 3
-Golden_Five_Sell_Limit = 3
-# TODO: TEST
-"""
+# TODO: So I can change it later via telegram.
+RSI_Buy_Limit = 20
+RSI_Sell_Limit = 80
 Golden_Five_Buy_Limit = 4
 Golden_Five_Sell_Limit = 4
-"""
 # ----------------------------------------------------------------
 # Headers
 Candle_Headers = ["Open Time", "Open Price", "High Price", "Low Price", "Close Price",
@@ -44,6 +40,8 @@ Coinlist_Changes_Headers = ["Coin", "7 Day Percent", "30 Day Percent", "90 Day P
                             "180 Day Percent", "365 Day Percent", "AVG Percent"]
 # ----------------------------------------------------------------
 # Messages
+# TODO: Also introduce Beyza_Restart function into Info_Message
+# TODO: Also introduce Get_Coinlist function into Info_Message
 Install_Message = ("Thank you for using Binance Efficient Yield Zonal Algorithm Bot!\nWe are currently making the "
                    "first installations. Please wait...")
 Start_Message = ("I am Binance Efficient Yield Zonal Algorithm Bot. You can do Coin analysis, Coin backtest and "

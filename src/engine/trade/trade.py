@@ -50,14 +50,17 @@ def BEYZA_START():
                 if wallet[headers[0]][i][:2] == "LD" or wallet[headers[0]][i] == "USDT": continue
                 if wallet[headers[2]][i] <= DEF.MIN_USDT_Balance: continue
                 # ----------------------------------------------------------------
-                # TODO: TEST
                 last_price = DATA.GET_STOP_LOSS_ORDER(wallet[headers[0]][i])
                 price = READ.CANDLE(Coin=wallet[headers[0]][i], Limit=1, Head_ID=4)[0]
                 if last_price is None: last_price = float(price) * 0.95
                 else: last_price = last_price['price']
-                if (float(price) * 0.98) >= float(last_price):
+                if (float(price) * 0.98) > float(last_price):
                     CALCULATE.DELETE_STOP_LOSS(wallet[headers[0]][i])
                     CALCULATE.STOP_LOSS(wallet[headers[0]][i])
+                elif (float(price)) < float(last_price):
+                    CALCULATE.DELETE_STOP_LOSS(wallet[headers[0]][i])
+                    CALCULATE.MARKET_SELL(Coin=wallet[headers[0]][i], Quantity=wallet[headers[1]][i])
+                    continue
                 # ----------------------------------------------------------------
                 prices = READ.CANDLE(Coin=wallet[headers[0]][i], Period=DEF.Candle_Periods[4], Limit=205, Head_ID=4)
                 if len(prices) < 205:
@@ -77,6 +80,7 @@ def BEYZA_START():
         favoriteList = READ.FAVORITELIST()
         if not favoriteList.empty:
             for coin in favoriteList[headers[0]]:
+                # TODO: If I Have: Continue
                 if not T.Transaction[T.Trade]: return None
                 USDT_Balance = READ.WALLET(Coin="USDT", Head_ID=2)
                 if USDT_Balance.empty or USDT_Balance.item() / 2 <= DEF.MIN_USDT_Balance: continue
@@ -101,6 +105,8 @@ def BEYZA_START():
         # ----------------------------------------------------------------
         if T.Transaction[T.Trade]: MSG.SEND("Trade Bot Wait")
         LIB.TIME.sleep(500)
+
+# TODO: def BEYZA_RESTART()
 # ----------------------------------------------------------------
 
 
@@ -115,9 +121,9 @@ def BEYZA_BACKTEST(Coin, Period, Wallet, Monthly_Addition):
     # ----------------------------------------------------------------
     prices = READ.CANDLE(Coin=Coin, Period=Period, Head_ID=4)
     ema25 = INDICATOR.EMA(MA_Length=DEF.MA_Lengths[0], Prices=prices)
-    sma25 = INDICATOR.SMA(MA_Length=DEF.MA_Lengths[0], Prices=prices)
-    sma50 = INDICATOR.SMA(MA_Length=DEF.MA_Lengths[1], Prices=prices)
-    sma200 = INDICATOR.SMA(MA_Length=DEF.MA_Lengths[2], Prices=prices)
+    sma25 = INDICATOR.SMA(MA_Length=DEF.MA_Lengths[1], Prices=prices)
+    sma50 = INDICATOR.SMA(MA_Length=DEF.MA_Lengths[2], Prices=prices)
+    sma200 = INDICATOR.SMA(MA_Length=DEF.MA_Lengths[3], Prices=prices)
     rsi = INDICATOR.RSI(prices)
     stoch_RSI = INDICATOR.STOCH_RSI(prices)
     for i in range(len(time)):

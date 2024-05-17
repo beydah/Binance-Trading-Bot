@@ -28,6 +28,11 @@ def SEND(Bot_Message):
     except Exception: pass
 
 
+def SEND_ERROR(Error):
+    SEND(f"Error {Error}")
+    LIB.TIME.sleep(250)
+
+
 def SEND_TEST(Coin, Period, First_Transaction_Date, Last_Transaction_Date, Buy_Num, Sell_Num, Entry_Wallet,
               Monthly_Addition, Total_Invesment, Total_Coin, Price, Wallet):
     message = (f"Symbol: {Coin}USDT - Period: {Period}\n\n"
@@ -42,9 +47,4 @@ def SEND_TEST(Coin, Period, First_Transaction_Date, Last_Transaction_Date, Buy_N
                     f"Current Wallet: {round(Total_Coin * Price, 2)} USDT\n")
     else: message += f"Current Wallet: {round(Wallet, 2)} USDT\n"
     SEND(message)
-
-
-def SEND_ERROR(Error):
-    SEND(f"Error {Error}")
-    LIB.TIME.sleep(250)
 # ----------------------------------------------------------------

@@ -2,6 +2,8 @@
 # Added Links
 from src.engine.settings import library as LIB
 from src.engine.settings import settings as DEF
+
+
 # ----------------------------------------------------------------
 
 
@@ -11,12 +13,11 @@ def SMA(MA_Length, Prices): return LIB.TA.ma("sma", Prices, length=MA_Length)
 def EMA(MA_Length, Prices): return LIB.TA.ema(name="ema", close=Prices, length=MA_Length)
 
 
-def RSI(Prices): return LIB.TA.rsi(Prices, DEF.RSI_Length)
+def RSI(Prices): return LIB.TA.rsi(Prices, DEF.RSI_Lengths[1])
 
 
 def STOCH_RSI(Prices):
-    settings = [DEF.StochRSI_Stoch_Length, DEF.StochRSI_Length, DEF.StochRSI_Smooth_K, DEF.StochRSI_Smooth_D]
-    stochRSI = LIB.TA.stochrsi(Prices, settings[0], settings[1], settings[2], settings[3])
+    stochRSI = LIB.TA.stochrsi(Prices, DEF.RSI_Lengths[0], DEF.RSI_Lengths[0], DEF.RSI_Lengths[0], DEF.RSI_Lengths[0])
     stochRSI.columns = ["stochRSI_K", "stochRSI_D"]
     return stochRSI["stochRSI_K"]
 
@@ -43,9 +44,12 @@ def GOLDEN_FIVE_TEST(Old_Price, Price, Old_EMA25, EMA25, Old_SMA25, SMA25,
         if signal == 1: signal_buy += 1
         elif signal == -1: signal_sell += 1
     return [signal_buy, signal_sell]
+
+
 # ----------------------------------------------------------------
 
 
+"""
 def DCA_SIGNAL(Old_Prices, Prices, Old_SMA25, SMA25):
     if Old_Prices < Old_SMA25 and Prices > SMA25: return 1
     if Old_Prices > Old_SMA25 and Prices < SMA25: return -1
@@ -56,34 +60,32 @@ def GOLDEN_CROSS_SIGNAL(Old_SMA50, SMA50, Old_SMA200, SMA200):
     if Old_SMA50 < Old_SMA200 and SMA50 > SMA200: return 1
     if Old_SMA50 > Old_SMA200 and SMA50 < SMA200: return -1
     return 0
-
-
-# TODO: TEST
 """
+
+
 def DCA_SIGNAL(Old_Prices, Prices, Old_SMA25, SMA25):
     if Prices > SMA25: return 1
-    if Prices < SMA25: return -1
+    elif Prices < SMA25: return -1
     return 0
 
 
 def GOLDEN_CROSS_SIGNAL(Old_SMA50, SMA50, Old_SMA200, SMA200):
     if SMA50 > SMA200: return 1
-    if SMA50 < SMA200: return -1
+    elif SMA50 < SMA200: return -1
     return 0
-"""
 
 
 def RSI_SIGNAL(RSI_Num):
     if RSI_Num < 30: return 1
-    if RSI_Num > 70: return -1
+    elif RSI_Num > 70: return -1
     return 0
 
 
 def FULL_SIGNALS(Prices):
     ema25 = EMA(MA_Length=DEF.MA_Lengths[0], Prices=Prices)
-    sma25 = SMA(MA_Length=DEF.MA_Lengths[0], Prices=Prices)
-    sma50 = SMA(MA_Length=DEF.MA_Lengths[1], Prices=Prices)
-    sma200 = SMA(MA_Length=DEF.MA_Lengths[2], Prices=Prices)
+    sma25 = SMA(MA_Length=DEF.MA_Lengths[1], Prices=Prices)
+    sma50 = SMA(MA_Length=DEF.MA_Lengths[2], Prices=Prices)
+    sma200 = SMA(MA_Length=DEF.MA_Lengths[3], Prices=Prices)
     rsi = RSI(Prices)
     stochRSI = STOCH_RSI(Prices)
     last = len(Prices) - 2

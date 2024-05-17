@@ -35,6 +35,7 @@ def TRANSACTION(User_Name, Raw_Prompt, Prompt):
                 Write_Transaction[0] = "GET COINLIST FOR WRITE"
                 MSG.SEND("Enter the coinlist. But becareful:\n(To Exit: '/exit')")
             else: MSG.SEND("Please Wait...")
+        # TODO: GET COINLIST
         elif Prompt == "INSERT COINLIST":
             if not Transaction[Coinlist]:
                 Transaction[Write] = True
@@ -83,6 +84,9 @@ def TRANSACTION(User_Name, Raw_Prompt, Prompt):
         elif Prompt == "CLOSE TRADE" or Prompt == "BEYZA STOP":
             if Transaction[Trade]: TRADE.BEYZA_STOP()
             else: MSG.SEND("Bot has Already Stopped")
+        # TODO: RESTART TRADE or BEYZA RESTART
+        # TODO: MANUEL BUY
+        # TODO: MANUEL SELL
         # ----------------------------------------------------------------
         elif Prompt == "WHO IS YOUR CREATOR": MSG.SEND("Ilkay Beydah Saglam")
         elif Prompt == "WHO IS ILKAY": MSG.SEND("Beyza's Love")
