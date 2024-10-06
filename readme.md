@@ -2,7 +2,7 @@
 
 <div style="text-align:center;">
     <a href="#binance-trading-bot">
-        <img src="https://raw.githubusercontent.com/beydah/asset/main/banner/binance-trading-bot-upper.png" alt="Colorful Stick">
+        <img src="https://raw.githubusercontent.com/beydah/asset/main/banner/binance-trading-bot-upper.png" alt="Banner">
     </a>
 </div>
 
