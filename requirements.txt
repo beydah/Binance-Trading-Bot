@@ -2,4 +2,4 @@ python-binance~=1.0.19
 telebot~=0.0.5
 pandas~=2.2.1
 pandas_ta~=0.3.14b0
-requests~=2.31.0
+requests~=2.32.4
