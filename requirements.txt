@@ -3,3 +3,6 @@ telebot~=0.0.5
 pandas~=2.2.1
 pandas_ta~=0.3.14b0
 requests~=2.32.4
+python-dotenv~=1.0.1
+pydantic-settings~=2.2.1
+schedule~=1.2.1

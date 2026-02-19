@@ -1,54 +1,47 @@
 # ----------------------------------------------------------------
 # Candle Default Settings
-# TODO: So I can change it later via telegram.
-Candle_Limit = 1500
-Candle_Periods = ["15m", "30m", "1h", "2h", "4h"]
+CANDLE_LIMIT = 1500
+CANDLE_PERIODS = ["15m", "30m", "1h", "2h", "4h"]
 # ----------------------------------------------------------------
 # USDT Settings
-# TODO: So I can change it later via telegram.
-Ignored_USDT_Balance = 5
-MIN_USDT_Balance = 10
+IGNORED_USDT_BALANCE = 5
+MIN_USDT_BALANCE = 10
 # ----------------------------------------------------------------
 # Rate Settings
-# TODO: So I can change it later via telegram.
-Binance_Comission_Rate = 0.99
-Stop_Loss_Rate = 0.98
+BINANCE_COMISSION_RATE = 0.99
+STOP_LOSS_RATE = 0.98
 # ----------------------------------------------------------------
 # Days Settings
-Wallet_Change_Days = [1, 3, 7, 15, 30]
-Coin_Change_Days = [7, 30, 90, 180, 365]
+WALLET_CHANGE_DAYS = [1, 3, 7, 15, 30]
+COIN_CHANGE_DAYS = [7, 30, 90, 180, 365]
 # ----------------------------------------------------------------
 # Indicator Settings
-# TODO: So I can change it later via telegram.
-MA_Lengths = [20, 40, 80, 160]
-RSI_Lengths = [5, 10]
+MA_LENGTHS = [20, 40, 80, 160]
+RSI_LENGTHS = [5, 10]
 # ----------------------------------------------------------------
 # Signal Settings
-# TODO: So I can change it later via telegram.
-RSI_Buy_Limit = 20
-RSI_Sell_Limit = 80
-Golden_Five_Buy_Limit = 4
-Golden_Five_Sell_Limit = 4
+RSI_BUY_LIMIT = 20
+RSI_SELL_LIMIT = 80
+GOLDEN_FIVE_BUY_LIMIT = 4
+GOLDEN_FIVE_SELL_LIMIT = 4
 # ----------------------------------------------------------------
 # Headers
-Candle_Headers = ["Open Time", "Open Price", "High Price", "Low Price", "Close Price",
+CANDLE_HEADERS = ["Open Time", "Open Price", "High Price", "Low Price", "Close Price",
                   "Volume", "Close Time", "QAV", "NAT", "TBBAV", "TBQAV", "Ignore"]
-Wallet_Headers = ["Coin", "Balance", "USDT Balance"]
-Wallet_Changes_Headers = ["Total Balance", "1 Day Percent", "3 Day Percent", "7 Day Percent",
+WALLET_HEADERS = ["Coin", "Balance", "USDT Balance"]
+WALLET_CHANGES_HEADERS = ["Total Balance", "1 Day Percent", "3 Day Percent", "7 Day Percent",
                           "15 Day Percent", "30 Day Percent", "AVG Percent"]
-Coinlist_Changes_Headers = ["Coin", "7 Day Percent", "30 Day Percent", "90 Day Percent",
+COINLIST_CHANGES_HEADERS = ["Coin", "7 Day Percent", "30 Day Percent", "90 Day Percent",
                             "180 Day Percent", "365 Day Percent", "AVG Percent"]
 # ----------------------------------------------------------------
 # Messages
-# TODO: Also introduce Beyza_Restart function into Info_Message
-# TODO: Also introduce Get_Coinlist function into Info_Message
-Install_Message = ("Thank you for using Binance Efficient Yield Zonal Algorithm Bot!\nWe are currently making the "
+INSTALL_MESSAGE = ("Thank you for using Binance Efficient Yield Zonal Algorithm Bot!\nWe are currently making the "
                    "first installations. Please wait...")
-Start_Message = ("I am Binance Efficient Yield Zonal Algorithm Bot. You can do Coin analysis, Coin backtest and "
+START_MESSAGE = ("I am Binance Efficient Yield Zonal Algorithm Bot. You can do Coin analysis, Coin backtest and "
                  "automatic buy and sell transactions with me.\nMore: '/info'")
-Info_Message = ("Transactions:\n\nWrite Coinlist\nInsert Coinlist\nDrop Coinlist\nAnalysis Coinlist\n\nGet "
+INFO_MESSAGE = ("Transactions:\n\nWrite Coinlist\nInsert Coinlist\nDrop Coinlist\nAnalysis Coinlist\n\nGet "
                 "Wallet\nAnalysis Wallet\n\nAnalysis Coin\nBacktest Coin\n\nOpen Trade\nClose Trade\n\nMore: '/help'")
-Help_Message = ("Tutorial:\n\nWrite Coinlist: It takes the coin symbols you have written below and creates a list of "
+HELP_MESSAGE = ("Tutorial:\n\nWrite Coinlist: It takes the coin symbols you have written below and creates a list of "
                 "them.\nExample:\nMessage 1: 'Write Coinlist'\nMessage 2:\n          BTC\n          BNB\n          "
                 "SOL\n          XEC\n          ...\n\nInsert Coinlist: You can see your Coin List and add "
                 "to the list.\n\nDrop Coinlist: You can see your Coin List and delete it from the list.\n\nAnalysis "
@@ -60,7 +53,7 @@ Help_Message = ("Tutorial:\n\nWrite Coinlist: It takes the coin symbols you have
                 "It shares with you all the buying and selling results of the coin you typed.\n\nOpen Trade: "
                 "Initiates buy and sell transactions and buys at suitable opportunities.\n\nClose Trade: Performs "
                 "sell transaction and transfers to cash\n\nMore: '/trade'")
-Trade_Message = ("All rights of the code belong to Ilkay Beydah Saglam.\n\nThe code's sell strategy creates a new "
+TRADE_MESSAGE = ("All rights of the code belong to Ilkay Beydah Saglam.\n\nThe code's sell strategy creates a new "
                  "sell signal by interpreting the satellite signals coming from EMA, SMA, Golden Cross, RSI, "
                  "StochRSI values and trades according to this signal. You can backtest some of your wealth symbols "
                  "before using this strategy.\n\nIf you want the code to buy and sell, you must go to the "

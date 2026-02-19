@@ -2,20 +2,19 @@
 
 ## Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+We currently support the latest version of the Binance Trading Bot. Please ensure you are running the most recent release to receive security updates.
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| Latest  | :white_check_mark: |
+| < 1.0   | :x:                |
 
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+We take security seriously. If you discover a security vulnerability within this project, please follow these steps:
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+1.  **Do NOT create a public GitHub issue.** This could expose the vulnerability to malicious actors before a patch is released.
+2.  Email your findings to the maintainer (or open a draft Security Advisory if you have access).
+3.  Include details about the vulnerability, steps to reproduce, and potential impact.
+
+We will acknowledge your report within 48 hours and work towards a resolution.
