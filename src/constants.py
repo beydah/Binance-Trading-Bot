@@ -3,6 +3,9 @@
 CANDLE_LIMIT = 1500
 CANDLE_PERIODS = ["15m", "30m", "1h", "2h", "4h"]
 # ----------------------------------------------------------------
+# Paths
+DATA_DIR = ".data"
+# ----------------------------------------------------------------
 # USDT Settings
 IGNORED_USDT_BALANCE = 5
 MIN_USDT_BALANCE = 10
