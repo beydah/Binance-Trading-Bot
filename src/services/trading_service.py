@@ -52,12 +52,15 @@ def place_stop_loss(p_coin: str):
         balance = 0
         min_qty, max_qty = _get_qty_limits(p_coin)
         
-        # Need to implement finding balance from wallet data
-        # Assuming wallet is list of [Coin, Free, USDT]
-        for row in wallet: # row is list
-             if row[0] == p_coin:
-                 balance = float(row[1])
-                 break
+        # update_wallet returns a DataFrame; retain support for list rows too.
+        if hasattr(wallet, "iterrows"):
+            rows = (row.tolist() for _, row in wallet.iterrows())
+        else:
+            rows = iter(wallet)
+        for row in rows:
+            if row[0] == p_coin:
+                balance = float(row[1])
+                break
         
         if balance == 0: return False
 
@@ -66,9 +69,11 @@ def place_stop_loss(p_coin: str):
 
         # Get Current Price
         price = DATA.get_candle_data(p_coin, "1m", 1).iloc[-1]['Close Price']
-        stop_price = CALC.F_Find_Usdt_Quantity(float(price), STOP_LOSS_RATE) # Reuse calc or just math? 
-        # Original: round(float(price[0]) * DEF.STOP_LOSS_RATE, len(str(price[0]).split(".")[-1]))
-        stop_price = round(float(price) * STOP_LOSS_RATE, 2) # Simplify rounding for now or use precise logic
+        tick_size = API.F_Get_Symbol_Info(p_coin, "tickSize", "PRICE_FILTER")
+        stop_price = CALC.F_Round_Down_To_Tick(float(price) * STOP_LOSS_RATE, tick_size)
+        if stop_price is None:
+            LOGGER.error(f"STOP LOSS failed for {p_coin}: price cannot be aligned to tick size {tick_size}")
+            return False
         
         client = API.F_Get_Binance()
         client.create_order(symbol=p_coin+"USDT", type="STOP_LOSS_LIMIT", side="SELL",
@@ -77,7 +82,7 @@ def place_stop_loss(p_coin: str):
         LOGGER.info(f"STOP LOSS placed for {p_coin} at {stop_price}")
         return True
     except Exception as e:
-        LOGGER.error(f"STOP LOSS failed: {e}")
+        LOGGER.error(f"STOP LOSS failed for {p_coin}: {e}")
         return False
 
 def remove_stop_loss(p_coin: str):
