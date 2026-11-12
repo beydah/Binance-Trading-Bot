@@ -60,10 +60,16 @@ def F_Get_Candle(p_coin: str, p_period: str = None, p_limit: int = None, p_datet
             _send_error(f"GET_CANDLE: {e}")
             time.sleep(5)
 
-def F_Get_Symbol_Info(p_coin: str, p_info: str):
+def F_Get_Symbol_Info(p_coin: str, p_info: str, p_filter_type: str = "LOT_SIZE"):
     client = F_Get_Binance()
     while True:
-        try: return client.get_symbol_info(p_coin+"USDT")['filters'][1][p_info]
+        try:
+            symbol_info = client.get_symbol_info(p_coin+"USDT")
+            symbol_filter = next(
+                item for item in symbol_info['filters']
+                if item['filterType'] == p_filter_type
+            )
+            return symbol_filter[p_info]
         except Exception as e: 
             LOGGER.error(f"GET_SYMBOLINFO: {e}")
             _send_error(f"GET_SYMBOLINFO: {e}")

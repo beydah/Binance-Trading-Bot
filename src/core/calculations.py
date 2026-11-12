@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------
-from decimal import Decimal
+from decimal import Decimal, ROUND_DOWN
 from src.constants import MIN_USDT_BALANCE
 from src.utils.logger import LOGGER
 
@@ -36,6 +36,22 @@ def F_Find_Coin_Quantity(p_usdt_quantity: float, p_coin_price: float):
 
 def F_Find_Usdt_Quantity(p_coin_quantity: float, p_coin_price: float): 
     return float(round(p_coin_quantity * p_coin_price, 9))
+
+def F_Round_Down_To_Tick(p_price: float, p_tick_size: str):
+    """Return a positive price aligned to an exchange tick, or None if invalid."""
+    try:
+        price = Decimal(str(p_price))
+        tick_size = Decimal(str(p_tick_size))
+        if price <= 0 or tick_size <= 0:
+            return None
+
+        rounded = (price / tick_size).to_integral_value(rounding=ROUND_DOWN) * tick_size
+        if rounded <= 0:
+            return None
+        return format(rounded, "f")
+    except Exception as e:
+        LOGGER.error(f"Error in F_Round_Down_To_Tick: {e}")
+        return None
 
 def F_Find_Wallet_Change(p_now_balance: float, p_past_balance: float):
     try: 

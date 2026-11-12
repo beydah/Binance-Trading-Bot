@@ -95,4 +95,43 @@ def test_execute_market_buy_failure(mock_api):
     with patch('src.services.trading_service.CALC.F_Virtual_Quantity', return_value="0.1"):
         result = TRADE.execute_market_buy("BTC", 0.1)
         assert result == False
+
+@patch('src.services.trading_service.API')
+@patch('src.services.trading_service.DATA')
+def test_place_stop_loss_uses_symbol_price_tick(mock_data, mock_api):
+    mock_data.update_wallet.return_value = pd.DataFrame([
+        {"Coin": "SHIB", "Balance": 1000.0, "USDT Balance": 0.01}
+    ])
+    mock_data.get_candle_data.return_value = pd.DataFrame({"Close Price": [0.00001423]})
+    mock_api.F_Get_Symbol_Info.side_effect = lambda coin, field, filter_type="LOT_SIZE": {
+        "minQty": "1.00", "maxQty": "46116860414.00", "tickSize": "0.00000001"
+    }[field]
+    mock_api.F_Get_Binance.return_value = MagicMock()
+
+    with patch('src.services.trading_service.CALC.F_Virtual_Quantity', return_value="1000"):
+        result = TRADE.place_stop_loss("SHIB")
+
+    assert result is True
+    mock_api.F_Get_Symbol_Info.assert_any_call("SHIB", "tickSize", "PRICE_FILTER")
+    mock_api.F_Get_Binance.return_value.create_order.assert_called_once_with(
+        symbol="SHIBUSDT", type="STOP_LOSS_LIMIT", side="SELL",
+        price="0.00001394", stopPrice="0.00001394", quantity="1000", timeInForce="GTC"
+    )
+
+@patch('src.services.trading_service.API')
+@patch('src.services.trading_service.DATA')
+def test_place_stop_loss_surfaces_order_failure(mock_data, mock_api):
+    mock_data.update_wallet.return_value = pd.DataFrame([
+        {"Coin": "SHIB", "Balance": 1000.0, "USDT Balance": 0.01}
+    ])
+    mock_data.get_candle_data.return_value = pd.DataFrame({"Close Price": [0.00001423]})
+    mock_api.F_Get_Symbol_Info.side_effect = lambda coin, field, filter_type="LOT_SIZE": {
+        "minQty": "1.00", "maxQty": "46116860414.00", "tickSize": "0.00000001"
+    }[field]
+    mock_api.F_Get_Binance.return_value.create_order.side_effect = Exception("exchange rejected order")
+
+    with patch('src.services.trading_service.CALC.F_Virtual_Quantity', return_value="1000"):
+        result = TRADE.place_stop_loss("SHIB")
+
+    assert result is False
 # endregion

@@ -29,6 +29,11 @@ def test_find_usdt_quantity():
     val = CALC.F_Find_Usdt_Quantity(2.0, 50.0)
     assert val == 100.0
 
+def test_round_price_down_to_tick():
+    assert CALC.F_Round_Down_To_Tick(0.0000139454, "0.00000001") == "0.00001394"
+    assert CALC.F_Round_Down_To_Tick(1.23456, "0.0001") == "1.2345"
+    assert CALC.F_Round_Down_To_Tick(0.000000004, "0.00000001") is None
+
 def test_find_wallet_change():
     # 100 to 110 = 10%
     change = CALC.F_Find_Wallet_Change(110.0, 100.0)
